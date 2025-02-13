@@ -5,8 +5,10 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log/slog"
 	"math/rand/v2"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -84,7 +86,7 @@ func nu_of_primes(read_buf []byte) int {
 func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File, threads_g *sync.WaitGroup, wg *sync.WaitGroup) {
 	defer threads_g.Done()
 	defer wg.Done()
-	//TODO: implement logging
+
 	time.Sleep(time.Duration(rand.IntN(201)+400) * time.Millisecond)
 
 	for job := range jobs_q {
@@ -92,8 +94,12 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File
 		num_seg_to_read := job.seg_len / c
 		for i := 0; i < num_seg_to_read; i++ {
 			read_buf := make([]byte, c)
-			_, err := file.Read(read_buf)
+			num_read_byes, err := file.Read(read_buf)
+			if num_read_byes == 0 {
+				break
+			}
 			num_primes := nu_of_primes(read_buf)
+			slog.Info("File from " + strconv.Itoa(job.start_seg) + " bytes to " + strconv.Itoa(job.start_seg+job.seg_len) + " bytes has " + strconv.Itoa(num_primes) + " primes")
 			partial_ans_q <- partial_ans{job, num_primes}
 			if err == io.EOF {
 				break
@@ -101,8 +107,12 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File
 		}
 		if job.seg_len%c != 0 {
 			read_buf := make([]byte, job.seg_len%c)
-			_, err := file.Read(read_buf)
+			num_read_byes, err := file.Read(read_buf)
+			if num_read_byes == 0 {
+				break
+			}
 			num_primes := nu_of_primes(read_buf)
+			slog.Info("File from " + strconv.Itoa(job.start_seg) + " bytes to " + strconv.Itoa(job.start_seg+job.seg_len) + " bytes has " + strconv.Itoa(num_primes) + " primes")
 			partial_ans_q <- partial_ans{job, num_primes}
 			if err == io.EOF {
 				break
@@ -140,6 +150,7 @@ func main() {
 		}
 	}
 	jobs_q, partial_ans_q := make(chan JD), make(chan partial_ans)
+	num_primes := 0
 
 	file, err := os.Open(file_path)
 	defer file.Close()
@@ -148,7 +159,6 @@ func main() {
 	}
 
 	var wg, threads_g sync.WaitGroup
-	num_primes := 0
 
 	threads_g.Add(1)
 	go consolidator(partial_ans_q, &threads_g, &num_primes)

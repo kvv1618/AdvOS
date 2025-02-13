@@ -22,7 +22,8 @@ type partial_ans struct {
 	num_primes int
 }
 
-func dispatcher(file *os.File, file_path string, n int, jobs_q chan JD) {
+func dispatcher(file *os.File, file_path string, n int, jobs_q chan JD, threads_g *sync.WaitGroup) {
+	defer threads_g.Done()
 	segment := 0
 	read_buf := make([]byte, n)
 	var jd JD
@@ -75,7 +76,8 @@ func nu_of_primes(read_buf []byte) int {
 	return num_primes
 }
 
-func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File, wg *sync.WaitGroup) {
+func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File, wg *sync.WaitGroup, threads_g *sync.WaitGroup) {
+	defer threads_g.Done()
 	defer wg.Done()
 	//TODO: implement logging
 	time.Sleep(time.Duration(rand.IntN(201)+400) * time.Millisecond)
@@ -104,7 +106,8 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File
 	}
 }
 
-func consolidator(partial_ans_q chan partial_ans, wg *sync.WaitGroup) {
+func consolidator(partial_ans_q chan partial_ans, wg *sync.WaitGroup, threads_g *sync.WaitGroup) {
+	defer threads_g.Done()
 	wg.Wait()
 	num_primes := 0
 	for partial_ans := range partial_ans_q {
@@ -146,16 +149,16 @@ func main() {
 
 	var wg, threads_g sync.WaitGroup
 	threads_g.Add(1)
-	go consolidator(partial_ans_q, &wg)
+	go consolidator(partial_ans_q, &wg, &threads_g)
 
-	threads_g.Add(1)
 	for i := 0; i < m; i++ {
 		wg.Add(1)
-		go worker(jobs_q, partial_ans_q, c, file, &wg)
+		threads_g.Add(1)
+		go worker(jobs_q, partial_ans_q, c, file, &wg, &threads_g)
 	}
 
 	threads_g.Add(1)
-	go dispatcher(file, file_path, n, jobs_q)
+	go dispatcher(file, file_path, n, jobs_q, &threads_g)
 
 	threads_g.Wait()
 }

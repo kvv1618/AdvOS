@@ -81,8 +81,9 @@ func nu_of_primes(read_buf []byte) int {
 	return num_primes
 }
 
-func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File, threads_g *sync.WaitGroup) {
+func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File, threads_g *sync.WaitGroup, wg *sync.WaitGroup) {
 	defer threads_g.Done()
+	defer wg.Done()
 	//TODO: implement logging
 	time.Sleep(time.Duration(rand.IntN(201)+400) * time.Millisecond)
 
@@ -149,13 +150,14 @@ func main() {
 	}
 
 	var wg, threads_g sync.WaitGroup
+
 	threads_g.Add(1)
 	go consolidator(partial_ans_q, &threads_g)
 
 	for i := 0; i < m; i++ {
 		wg.Add(1)
 		threads_g.Add(1)
-		go worker(jobs_q, partial_ans_q, c, file, &threads_g)
+		go worker(jobs_q, partial_ans_q, c, file, &threads_g, &wg)
 	}
 
 	go func() {

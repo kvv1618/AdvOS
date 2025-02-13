@@ -66,8 +66,12 @@ func nu_of_primes(read_buf []byte) int {
 	num_primes := 0
 	for i := 0; i < len(read_buf); i++ {
 		err := binary.Read(byte_reader, binary.LittleEndian, &num)
-		if err != nil {
+		if err != nil && err != io.EOF {
+			fmt.Println("Error reading from buffer:\n", err)
 			os.Exit(1)
+		}
+		if err == io.EOF {
+			break
 		}
 		if is_prime(int(num)) {
 			num_primes++
@@ -104,6 +108,7 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File
 			}
 		}
 	}
+	fmt.Println("Worker done")
 }
 
 func consolidator(partial_ans_q chan partial_ans, wg *sync.WaitGroup, threads_g *sync.WaitGroup) {

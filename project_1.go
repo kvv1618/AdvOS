@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"io"
 	"math/rand/v2"
 	"os"
 	"sync"
@@ -27,16 +28,19 @@ func dispatcher(file *os.File, file_path string, n int, jobs_q chan JD) {
 	var jd JD
 	for {
 		num_read_byes, err := file.Read(read_buf)
+		if num_read_byes == 0 {
+			break
+		}
 		if err == nil {
-			jd = JD{file_path, (segment - 1) * n, n}
-		} else if err != nil && err.Error() == "EOF" {
-			jd = JD{file_path, (segment - 1) * n, num_read_byes}
+			jd = JD{file_path, segment * n, n}
+		} else if err == io.EOF {
+			jd = JD{file_path, segment * n, num_read_byes}
 		} else {
 			fmt.Println("Error reading file:\n", err)
 			os.Exit(1)
 		}
 		jobs_q <- jd
-		if err != nil && err.Error() == "EOF" {
+		if err == io.EOF {
 			break
 		}
 		segment++

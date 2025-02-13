@@ -24,6 +24,7 @@ type partial_ans struct {
 
 func dispatcher(file *os.File, file_path string, n int, jobs_q chan JD, threads_g *sync.WaitGroup) {
 	defer threads_g.Done()
+	defer close(jobs_q)
 	segment := 0
 	read_buf := make([]byte, n)
 	var jd JD
@@ -108,7 +109,6 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File
 			}
 		}
 	}
-	fmt.Println("Worker done")
 }
 
 func consolidator(partial_ans_q chan partial_ans, wg *sync.WaitGroup, threads_g *sync.WaitGroup) {
@@ -143,7 +143,6 @@ func main() {
 		}
 	}
 	jobs_q, partial_ans_q := make(chan JD), make(chan partial_ans)
-	defer close(jobs_q)
 	defer close(partial_ans_q)
 
 	file, err := os.Open(file_path)

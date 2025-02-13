@@ -111,13 +111,11 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File
 	}
 }
 
-func consolidator(partial_ans_q chan partial_ans, threads_g *sync.WaitGroup) {
+func consolidator(partial_ans_q chan partial_ans, threads_g *sync.WaitGroup, num_primes *int) {
 	defer threads_g.Done()
-	num_primes := 0
 	for partial_ans := range partial_ans_q {
-		num_primes += partial_ans.num_primes
+		*num_primes += partial_ans.num_primes
 	}
-	fmt.Println(num_primes)
 }
 
 func main() {
@@ -150,9 +148,10 @@ func main() {
 	}
 
 	var wg, threads_g sync.WaitGroup
+	num_primes := 0
 
 	threads_g.Add(1)
-	go consolidator(partial_ans_q, &threads_g)
+	go consolidator(partial_ans_q, &threads_g, &num_primes)
 
 	for i := 0; i < m; i++ {
 		wg.Add(1)
@@ -169,4 +168,6 @@ func main() {
 	go dispatcher(file, file_path, n, jobs_q, &threads_g)
 
 	threads_g.Wait()
+
+	fmt.Println(num_primes)
 }

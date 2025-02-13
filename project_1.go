@@ -94,7 +94,7 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File
 			_, err := file.Read(read_buf)
 			num_primes := nu_of_primes(read_buf)
 			partial_ans_q <- partial_ans{job, num_primes}
-			if err.Error() == "EOF" {
+			if err == io.EOF {
 				break
 			}
 		}
@@ -103,7 +103,7 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File
 			_, err := file.Read(read_buf)
 			num_primes := nu_of_primes(read_buf)
 			partial_ans_q <- partial_ans{job, num_primes}
-			if err.Error() == "EOF" {
+			if err == io.EOF {
 				break
 			}
 		}

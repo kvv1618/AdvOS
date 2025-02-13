@@ -1,22 +1,157 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
+	"math/rand/v2"
 	"os"
+	"sync"
+	"time"
 )
+
+type JD struct {
+	file_path string
+	start_seg int
+	seg_len   int
+}
+
+type partial_ans struct {
+	JD
+	num_primes int
+}
+
+func dispatcher(file *os.File, file_path string, n int, jobs_q chan JD) {
+	segment := 0
+	read_buf := make([]byte, n)
+	var jd JD
+	for {
+		num_read_byes, err := file.Read(read_buf)
+		if err == nil {
+			jd = JD{file_path, (segment - 1) * n, n}
+		} else if err != nil && err.Error() == "EOF" {
+			jd = JD{file_path, (segment - 1) * n, num_read_byes}
+		} else {
+			fmt.Println("Error reading file:\n", err)
+			os.Exit(1)
+		}
+		jobs_q <- jd
+		if err != nil && err.Error() == "EOF" {
+			break
+		}
+		segment++
+	}
+}
+
+func is_prime(num int) bool {
+	if num == 0 || num == 1 {
+		return false
+	}
+	for i := 2; i <= num/2; i++ {
+		if num%i == 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func nu_of_primes(read_buf []byte) int {
+	byte_reader := bytes.NewReader(read_buf)
+	var num uint64
+	num_primes := 0
+	for i := 0; i < len(read_buf); i++ {
+		err := binary.Read(byte_reader, binary.LittleEndian, &num)
+		if err != nil {
+			os.Exit(1)
+		}
+		if is_prime(int(num)) {
+			num_primes++
+		}
+	}
+	return num_primes
+}
+
+func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File, wg *sync.WaitGroup) {
+	defer wg.Done()
+	//TODO: implement logging
+	time.Sleep(time.Duration(rand.IntN(201)+400) * time.Millisecond)
+
+	for job := range jobs_q {
+		file.Seek(int64(job.start_seg), 0)
+		num_seg_to_read := job.seg_len / c
+		for i := 0; i < num_seg_to_read; i++ {
+			read_buf := make([]byte, c)
+			_, err := file.Read(read_buf)
+			num_primes := nu_of_primes(read_buf)
+			partial_ans_q <- partial_ans{job, num_primes}
+			if err.Error() == "EOF" {
+				break
+			}
+		}
+		if job.seg_len%c != 0 {
+			read_buf := make([]byte, job.seg_len%c)
+			_, err := file.Read(read_buf)
+			num_primes := nu_of_primes(read_buf)
+			partial_ans_q <- partial_ans{job, num_primes}
+			if err.Error() == "EOF" {
+				break
+			}
+		}
+	}
+}
+
+func consolidator(partial_ans_q chan partial_ans, wg *sync.WaitGroup) {
+	wg.Wait()
+	num_primes := 0
+	for partial_ans := range partial_ans_q {
+		num_primes += partial_ans.num_primes
+	}
+	fmt.Println(num_primes)
+}
 
 func main() {
 	file_path := os.Args[1]
-	var m, n, c int
-	_, err := fmt.Sscanf(os.Args[2], "%d", &m)
-	_, err = fmt.Sscanf(os.Args[3], "%d", &n)
-	_, err = fmt.Sscanf(os.Args[4], "%d", &c)
+	m, n, c := 1, 64000, 1000
+	if len(os.Args) > 3 {
+		_, err := fmt.Sscanf(os.Args[2], "%d", &m)
+		if err != nil {
+			fmt.Println("Defaulting value of m to 1")
+		}
+	}
+	if len(os.Args) > 4 {
+		_, err := fmt.Sscanf(os.Args[3], "%d", &n)
+		if err != nil {
+			fmt.Println("Defaulting value of n to 64000")
+		}
+	}
+	if len(os.Args) > 5 {
+		_, err := fmt.Sscanf(os.Args[4], "%d", &c)
+		if err != nil {
+			fmt.Println("Defaulting value of c to 1000")
+		}
+	}
+	jobs_q, partial_ans_q := make(chan JD), make(chan partial_ans)
+	defer close(jobs_q)
+	defer close(partial_ans_q)
+
 	file, err := os.Open(file_path)
+	defer file.Close()
 	if err != nil {
-		fmt.Println(err)
 		os.Exit(1)
 	}
-	defer file.Close()
-	var num uint64
 
+	var wg, threads_g sync.WaitGroup
+	threads_g.Add(1)
+	go consolidator(partial_ans_q, &wg)
+
+	threads_g.Add(1)
+	for i := 0; i < m; i++ {
+		wg.Add(1)
+		go worker(jobs_q, partial_ans_q, c, file, &wg)
+	}
+
+	threads_g.Add(1)
+	go dispatcher(file, file_path, n, jobs_q)
+
+	threads_g.Wait()
 }

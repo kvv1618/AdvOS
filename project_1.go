@@ -35,10 +35,8 @@ func dispatcher(file *os.File, file_path string, n int, jobs_q chan JD, threads_
 		if num_read_byes == 0 {
 			break
 		}
-		if err == nil {
-			jd = JD{file_path, segment * n, n}
-		} else if err == io.EOF {
-			jd = JD{file_path, segment * n, num_read_byes}
+		if err == nil || err == io.EOF {
+			jd = JD{file_path, segment, num_read_byes}
 		} else {
 			fmt.Println("Error reading file:\n", err)
 			os.Exit(1)
@@ -47,7 +45,7 @@ func dispatcher(file *os.File, file_path string, n int, jobs_q chan JD, threads_
 		if err == io.EOF {
 			break
 		}
-		segment++
+		segment += num_read_byes
 	}
 }
 
@@ -91,15 +89,20 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File
 
 	for job := range jobs_q {
 		file.Seek(int64(job.start_seg), 0)
-		num_seg_to_read := job.seg_len / c
+		num_seg_to_read := 0
+		if job.seg_len < c {
+			num_seg_to_read = 1
+		} else {
+			num_seg_to_read = job.seg_len / c
+		}
 		for i := 0; i < num_seg_to_read; i++ {
 			read_buf := make([]byte, c)
-			num_read_byes, err := file.Read(read_buf)
-			if num_read_byes == 0 {
+			num_read_bytes, err := file.Read(read_buf)
+			if num_read_bytes == 0 {
 				break
 			}
 			num_primes := nu_of_primes(read_buf)
-			slog.Info("File from " + strconv.Itoa(job.start_seg) + " bytes to " + strconv.Itoa(job.start_seg+job.seg_len) + " bytes has " + strconv.Itoa(num_primes) + " primes")
+			slog.Info("File from " + strconv.Itoa(job.start_seg+i*c) + " bytes to " + strconv.Itoa(job.start_seg+i*c+num_read_bytes) + " bytes has " + strconv.Itoa(num_primes) + " primes")
 			partial_ans_q <- partial_ans{job, num_primes}
 			if err == io.EOF {
 				break
@@ -112,7 +115,7 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File
 				break
 			}
 			num_primes := nu_of_primes(read_buf)
-			slog.Info("File from " + strconv.Itoa(job.start_seg) + " bytes to " + strconv.Itoa(job.start_seg+job.seg_len) + " bytes has " + strconv.Itoa(num_primes) + " primes")
+			slog.Info("File from " + strconv.Itoa(job.start_seg+num_seg_to_read*c) + " bytes to " + strconv.Itoa(job.start_seg+job.seg_len) + " bytes has " + strconv.Itoa(num_primes) + " primes")
 			partial_ans_q <- partial_ans{job, num_primes}
 			if err == io.EOF {
 				break

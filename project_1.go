@@ -24,9 +24,16 @@ type partial_ans struct {
 	num_primes int
 }
 
-func dispatcher(file *os.File, file_path string, n int, jobs_q chan JD, threads_g *sync.WaitGroup) {
+func dispatcher(file_path string, n int, jobs_q chan JD, threads_g *sync.WaitGroup) {
 	defer threads_g.Done()
 	defer close(jobs_q)
+
+	file, err := os.Open(file_path)
+	defer file.Close()
+	if err != nil {
+		os.Exit(1)
+	}
+
 	segment := 0
 	read_buf := make([]byte, n)
 	var jd JD
@@ -81,11 +88,17 @@ func nu_of_primes(read_buf []byte) int {
 	return num_primes
 }
 
-func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file *os.File, threads_g *sync.WaitGroup, wg *sync.WaitGroup) {
+func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file_path string, threads_g *sync.WaitGroup, wg *sync.WaitGroup) {
 	defer threads_g.Done()
 	defer wg.Done()
 
 	time.Sleep(time.Duration(rand.IntN(201)+400) * time.Millisecond)
+
+	file, err := os.Open(file_path)
+	defer file.Close()
+	if err != nil {
+		os.Exit(1)
+	}
 
 	for job := range jobs_q {
 		file.Seek(int64(job.start_seg), 0)
@@ -155,12 +168,6 @@ func main() {
 	jobs_q, partial_ans_q := make(chan JD), make(chan partial_ans)
 	num_primes := 0
 
-	file, err := os.Open(file_path)
-	defer file.Close()
-	if err != nil {
-		os.Exit(1)
-	}
-
 	var wg, threads_g sync.WaitGroup
 
 	threads_g.Add(1)
@@ -169,7 +176,7 @@ func main() {
 	for i := 0; i < m; i++ {
 		wg.Add(1)
 		threads_g.Add(1)
-		go worker(jobs_q, partial_ans_q, c, file, &threads_g, &wg)
+		go worker(jobs_q, partial_ans_q, c, file_path, &threads_g, &wg)
 	}
 
 	go func() {
@@ -178,7 +185,7 @@ func main() {
 	}()
 
 	threads_g.Add(1)
-	go dispatcher(file, file_path, n, jobs_q, &threads_g)
+	go dispatcher(file_path, n, jobs_q, &threads_g)
 
 	threads_g.Wait()
 

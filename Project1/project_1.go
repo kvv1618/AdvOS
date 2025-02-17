@@ -216,7 +216,7 @@ func main() {
 		for _, v := range job_stats {
 			sum += v
 		}
-		average := sum / len(job_stats)
+		average := float64(sum) / float64(len(job_stats))
 		if len(job_stats)%2 == 0 {
 			median = (job_stats[len(job_stats)/2] + job_stats[len(job_stats)/2-1]) / 2
 		} else {

@@ -29,10 +29,11 @@ func dispatcher(file_path string, n int, jobs_q chan JD, threads_g *sync.WaitGro
 	defer close(jobs_q)
 
 	file, err := os.Open(file_path)
-	defer file.Close()
 	if err != nil {
+		fmt.Println("Error opening file:\n", err)
 		os.Exit(1)
 	}
+	defer file.Close()
 
 	segment := 0
 	read_buf := make([]byte, n)
@@ -95,10 +96,11 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file_path str
 	time.Sleep(time.Duration(rand.IntN(201)+400) * time.Millisecond)
 
 	file, err := os.Open(file_path)
-	defer file.Close()
 	if err != nil {
+		fmt.Println("Error opening file:\n", err)
 		os.Exit(1)
 	}
+	defer file.Close()
 
 	for job := range jobs_q {
 		file.Seek(int64(job.start_seg), 0)
@@ -108,15 +110,16 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file_path str
 		} else {
 			num_seg_to_read = job.seg_len / c
 		}
+
+		num_primes := 0
 		for i := 0; i < num_seg_to_read; i++ {
 			read_buf := make([]byte, c)
 			num_read_bytes, err := file.Read(read_buf)
 			if num_read_bytes == 0 {
 				break
 			}
-			num_primes := nu_of_primes(read_buf)
+			num_primes += nu_of_primes(read_buf)
 			slog.Info("File from " + strconv.Itoa(job.start_seg+i*c) + " bytes to " + strconv.Itoa(job.start_seg+i*c+num_read_bytes) + " bytes has " + strconv.Itoa(num_primes) + " primes")
-			partial_ans_q <- partial_ans{job, num_primes}
 			if err == io.EOF {
 				break
 			}
@@ -127,13 +130,14 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file_path str
 			if num_read_byes == 0 {
 				break
 			}
-			num_primes := nu_of_primes(read_buf)
+			num_primes += nu_of_primes(read_buf)
 			slog.Info("File from " + strconv.Itoa(job.start_seg+num_seg_to_read*c) + " bytes to " + strconv.Itoa(job.start_seg+job.seg_len) + " bytes has " + strconv.Itoa(num_primes) + " primes")
-			partial_ans_q <- partial_ans{job, num_primes}
 			if err == io.EOF {
 				break
 			}
 		}
+
+		partial_ans_q <- partial_ans{job, num_primes}
 	}
 }
 

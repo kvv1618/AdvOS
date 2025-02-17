@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"math/rand/v2"
 	"os"
+	"sort"
 	"strconv"
 	"sync"
 	"time"
@@ -89,7 +90,7 @@ func nu_of_primes(read_buf []byte) int {
 	return num_primes
 }
 
-func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file_path string, threads_g *sync.WaitGroup, wg *sync.WaitGroup) {
+func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file_path string, threads_g *sync.WaitGroup, wg *sync.WaitGroup, id int, worker_stats *sync.Map) {
 	defer threads_g.Done()
 	defer wg.Done()
 
@@ -138,6 +139,9 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file_path str
 		}
 
 		partial_ans_q <- partial_ans{job, num_primes}
+		if val, ok := worker_stats.Load(id); ok {
+			worker_stats.Store(id, val.(int)+1)
+		}
 	}
 }
 
@@ -149,6 +153,8 @@ func consolidator(partial_ans_q chan partial_ans, threads_g *sync.WaitGroup, num
 }
 
 func main() {
+	start := time.Now()
+
 	file_path := os.Args[1]
 	m, n, c := 1, 64000, 1000
 	if len(os.Args) > 3 {
@@ -173,6 +179,7 @@ func main() {
 	num_primes := 0
 
 	var wg, threads_g sync.WaitGroup
+	var worker_stats sync.Map
 
 	threads_g.Add(1)
 	go consolidator(partial_ans_q, &threads_g, &num_primes)
@@ -180,7 +187,8 @@ func main() {
 	for i := 0; i < m; i++ {
 		wg.Add(1)
 		threads_g.Add(1)
-		go worker(jobs_q, partial_ans_q, c, file_path, &threads_g, &wg)
+		worker_stats.Store(i, 0)
+		go worker(jobs_q, partial_ans_q, c, file_path, &threads_g, &wg, i, &worker_stats)
 	}
 
 	go func() {
@@ -194,4 +202,31 @@ func main() {
 	threads_g.Wait()
 
 	fmt.Println(num_primes)
+
+	defer func() {
+		job_stats := make([]int, 0, m)
+		worker_stats.Range(func(key, value interface{}) bool {
+			job_stats = append(job_stats, value.(int))
+			return true
+		})
+		sort.Ints(job_stats)
+		min, max := job_stats[0], job_stats[len(job_stats)-1]
+		sum, median := 0, 0
+
+		for _, v := range job_stats {
+			sum += v
+		}
+		average := sum / len(job_stats)
+		if len(job_stats)%2 == 0 {
+			median = (job_stats[len(job_stats)/2] + job_stats[len(job_stats)/2-1]) / 2
+		} else {
+			median = job_stats[len(job_stats)/2]
+		}
+		fmt.Println("Min jobs completed by a worker:", min)
+		fmt.Println("Max jobs completed by a worker:", max)
+		fmt.Println("Average jobs completed by a worker:", average)
+		fmt.Println("Median jobs completed by a worker:", median)
+		fmt.Println("Elapsed time (ms):", time.Since(start).Milliseconds(), "ms")
+	}()
+
 }

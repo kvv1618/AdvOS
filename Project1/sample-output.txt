@@ -1,44 +1,14 @@
 - Command:
-go run project_1.go binary_datafile_0002.dat 10 64000 1000
+go run project_1.go binary_datafile_00002.dat 10 64000 1000
 
 - Output:
-2025/02/18 17:21:25 INFO File from 64000 bytes to 128000 bytes has 168 primes
-2025/02/18 17:21:25 INFO File from 0 bytes to 64000 bytes has 200 primes
-2025/02/18 17:21:25 INFO File from 128000 bytes to 192000 bytes has 198 primes
-2025/02/18 17:21:25 INFO File from 192000 bytes to 256000 bytes has 171 primes
-2025/02/18 17:21:25 INFO File from 384000 bytes to 448000 bytes has 159 primes
-2025/02/18 17:21:25 INFO File from 256000 bytes to 320000 bytes has 187 primes
-2025/02/18 17:21:25 INFO File from 320000 bytes to 384000 bytes has 176 primes
-2025/02/18 17:21:25 INFO File from 512000 bytes to 576000 bytes has 184 primes
-2025/02/18 17:21:25 INFO File from 448000 bytes to 512000 bytes has 177 primes
-2025/02/18 17:21:25 INFO File from 576000 bytes to 640000 bytes has 199 primes
-2025/02/18 17:21:25 INFO File from 640000 bytes to 704000 bytes has 193 primes
-2025/02/18 17:21:25 INFO File from 768000 bytes to 832000 bytes has 174 primes
-2025/02/18 17:21:25 INFO File from 704000 bytes to 768000 bytes has 192 primes
-2025/02/18 17:21:25 INFO File from 832000 bytes to 896000 bytes has 187 primes
-2025/02/18 17:21:25 INFO File from 896000 bytes to 960000 bytes has 194 primes
-2025/02/18 17:21:25 INFO File from 960000 bytes to 1024000 bytes has 186 primes
-2025/02/18 17:21:25 INFO File from 1024000 bytes to 1088000 bytes has 168 primes
-2025/02/18 17:21:25 INFO File from 1088000 bytes to 1152000 bytes has 182 primes
-2025/02/18 17:21:25 INFO File from 1152000 bytes to 1216000 bytes has 188 primes
-2025/02/18 17:21:25 INFO File from 1216000 bytes to 1280000 bytes has 196 primes
-2025/02/18 17:21:25 INFO File from 1280000 bytes to 1344000 bytes has 199 primes
-2025/02/18 17:21:25 INFO File from 1344000 bytes to 1408000 bytes has 175 primes
-2025/02/18 17:21:25 INFO File from 1408000 bytes to 1472000 bytes has 185 primes
-2025/02/18 17:21:25 INFO File from 1536000 bytes to 1600000 bytes has 182 primes
-2025/02/18 17:21:25 INFO File from 1472000 bytes to 1536000 bytes has 205 primes
-2025/02/18 17:21:25 INFO File from 1600000 bytes to 1664000 bytes has 184 primes
-2025/02/18 17:21:25 INFO File from 1664000 bytes to 1728000 bytes has 171 primes
-2025/02/18 17:21:25 INFO File from 1728000 bytes to 1792000 bytes has 181 primes
-2025/02/18 17:21:25 INFO File from 1792000 bytes to 1856000 bytes has 173 primes
-2025/02/18 17:21:25 INFO File from 2112000 bytes to 2150408 bytes has 104 primes
-2025/02/18 17:21:25 INFO File from 1920000 bytes to 1984000 bytes has 171 primes
-2025/02/18 17:21:25 INFO File from 1856000 bytes to 1920000 bytes has 174 primes
-2025/02/18 17:21:25 INFO File from 2048000 bytes to 2112000 bytes has 177 primes
-2025/02/18 17:21:25 INFO File from 1984000 bytes to 2048000 bytes has 182 primes
-6142
-Min jobs completed by a worker: 1
-Max jobs completed by a worker: 6
-Average jobs completed by a worker: 3.4
-Median jobs completed by a worker: 3
-Elapsed time (ms): 651 ms
+2025/02/18 18:34:58 INFO File from 0 bytes to 64000 bytes has 170 primes
+2025/02/18 18:34:58 INFO File from 64000 bytes to 128000 bytes has 184 primes
+2025/02/18 18:34:58 INFO File from 128000 bytes to 192000 bytes has 186 primes
+2025/02/18 18:34:58 INFO File from 192000 bytes to 217096 bytes has 65 primes
+605
+Min jobs completed by a worker: 0
+Max jobs completed by a worker: 3
+Average jobs completed by a worker: 0.4
+Median jobs completed by a worker: 0
+Elapsed time (ms): 581 ms

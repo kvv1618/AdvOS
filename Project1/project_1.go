@@ -114,7 +114,6 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file_path str
 				break
 			}
 			num_primes += nu_of_primes(read_buf)
-			slog.Info("File from " + strconv.Itoa(job.start_seg+i*c) + " bytes to " + strconv.Itoa(job.start_seg+i*c+num_read_bytes) + " bytes has " + strconv.Itoa(num_primes) + " primes")
 			if err == io.EOF {
 				break
 			}
@@ -126,12 +125,12 @@ func worker(jobs_q chan JD, partial_ans_q chan partial_ans, c int, file_path str
 				break
 			}
 			num_primes += nu_of_primes(read_buf)
-			slog.Info("File from " + strconv.Itoa(job.start_seg+num_seg_to_read*c) + " bytes to " + strconv.Itoa(job.start_seg+job.seg_len) + " bytes has " + strconv.Itoa(num_primes) + " primes")
 			if err == io.EOF {
 				break
 			}
 		}
 
+		slog.Info("File from " + strconv.Itoa(job.start_seg) + " bytes to " + strconv.Itoa(job.start_seg+job.seg_len) + " bytes has " + strconv.Itoa(num_primes) + " primes")
 		partial_ans_q <- partial_ans{job, num_primes}
 		if val, ok := worker_stats.Load(id); ok {
 			worker_stats.Store(id, val.(int)+1)

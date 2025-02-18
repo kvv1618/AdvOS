@@ -1,15 +1,16 @@
 import struct
 import os
+import random
 
-value = 2
-filename = "binary_datafile.bin"
+value = random.getrandbits(64)
+filename = "binary_datafile_2.dat"
 with open(filename, "wb") as f:
     while True:
         # Write the 64-bit unsigned integer in little-endian format
         f.write(struct.pack('<Q', value))
-        value+=1
+        value = random.getrandbits(64)
 
-        if os.stat(filename).st_size >= 1024 * 1024 * 1024:  # 1GB
+        if os.stat(filename).st_size >= 2 * 1024 * 1024 * 1024:
             break
 
-print(f"File '{filename}' created. Size: {os.stat(filename).st_size / (1024 * 1024)} MB")
+print(f"File '{filename}' created.")

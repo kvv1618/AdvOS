@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"math/big"
 	"math/rand/v2"
 	"os"
 	"sort"
@@ -58,16 +59,9 @@ func dispatcher(file_path string, n int, jobs_q chan JD, threads_g *sync.WaitGro
 	}
 }
 
-func is_prime(num int) bool {
-	if num == 0 || num == 1 {
-		return false
-	}
-	for i := 2; i <= num/2; i++ {
-		if num%i == 0 {
-			return false
-		}
-	}
-	return true
+func is_prime(num uint64) bool {
+	bigNum := new(big.Int).SetUint64(uint64(num))
+	return bigNum.ProbablyPrime(10)
 }
 
 func nu_of_primes(read_buf []byte) int {
@@ -83,7 +77,7 @@ func nu_of_primes(read_buf []byte) int {
 		if err == io.EOF {
 			break
 		}
-		if is_prime(int(num)) {
+		if is_prime(uint64(num)) {
 			num_primes++
 		}
 	}

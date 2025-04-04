@@ -27,9 +27,9 @@ service condenseResultsService {
 }
 message partialResults {
     string filePath = 1;
-    int32 startSeg = 1;
-    int32 segLen = 2;
-    int32 numPrimes = 3;
+    int32 startSeg = 2;
+    int32 segLen = 3;
+    int32 numPrimes = 4;
 }
 
 service stopWorkersService {

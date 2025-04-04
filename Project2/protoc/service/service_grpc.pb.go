@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	JobService_JobDetails_FullMethodName = "/service.JobService/jobDetails"
+	JobService_JobDetails_FullMethodName = "/service.jobService/jobDetails"
 )
 
 // JobServiceClient is the client API for JobService service.
@@ -108,7 +108,7 @@ func _JobService_JobDetails_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var JobService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "service.JobService",
+	ServiceName: "service.jobService",
 	HandlerType: (*JobServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -121,7 +121,7 @@ var JobService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	JobDataService_JobData_FullMethodName = "/service.JobDataService/jobData"
+	JobDataService_JobData_FullMethodName = "/service.jobDataService/jobData"
 )
 
 // JobDataServiceClient is the client API for JobDataService service.
@@ -212,7 +212,7 @@ type JobDataService_JobDataServer = grpc.ServerStreamingServer[JobDataResponse]
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var JobDataService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "service.JobDataService",
+	ServiceName: "service.jobDataService",
 	HandlerType: (*JobDataServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
@@ -226,101 +226,102 @@ var JobDataService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	PartialResultsService_PartialResults_FullMethodName = "/service.PartialResultsService/partialResults"
+	CondenseResultsService_CondenseResults_FullMethodName = "/service.condenseResultsService/condenseResults"
 )
 
-// PartialResultsServiceClient is the client API for PartialResultsService service.
+// CondenseResultsServiceClient is the client API for CondenseResultsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type PartialResultsServiceClient interface {
-	PartialResults(ctx context.Context, in *PartialResultsResponse, opts ...grpc.CallOption) (*Empty, error)
+type CondenseResultsServiceClient interface {
+	CondenseResults(ctx context.Context, in *PartialResults, opts ...grpc.CallOption) (*Empty, error)
 }
 
-type partialResultsServiceClient struct {
+type condenseResultsServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewPartialResultsServiceClient(cc grpc.ClientConnInterface) PartialResultsServiceClient {
-	return &partialResultsServiceClient{cc}
+func NewCondenseResultsServiceClient(cc grpc.ClientConnInterface) CondenseResultsServiceClient {
+	return &condenseResultsServiceClient{cc}
 }
 
-func (c *partialResultsServiceClient) PartialResults(ctx context.Context, in *PartialResultsResponse, opts ...grpc.CallOption) (*Empty, error) {
+func (c *condenseResultsServiceClient) CondenseResults(ctx context.Context, in *PartialResults, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, PartialResultsService_PartialResults_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, CondenseResultsService_CondenseResults_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// PartialResultsServiceServer is the server API for PartialResultsService service.
-// All implementations must embed UnimplementedPartialResultsServiceServer
+// CondenseResultsServiceServer is the server API for CondenseResultsService service.
+// All implementations must embed UnimplementedCondenseResultsServiceServer
 // for forward compatibility.
-type PartialResultsServiceServer interface {
-	PartialResults(context.Context, *PartialResultsResponse) (*Empty, error)
-	mustEmbedUnimplementedPartialResultsServiceServer()
+type CondenseResultsServiceServer interface {
+	CondenseResults(context.Context, *PartialResults) (*Empty, error)
+	mustEmbedUnimplementedCondenseResultsServiceServer()
 }
 
-// UnimplementedPartialResultsServiceServer must be embedded to have
+// UnimplementedCondenseResultsServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedPartialResultsServiceServer struct{}
+type UnimplementedCondenseResultsServiceServer struct{}
 
-func (UnimplementedPartialResultsServiceServer) PartialResults(context.Context, *PartialResultsResponse) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PartialResults not implemented")
+func (UnimplementedCondenseResultsServiceServer) CondenseResults(context.Context, *PartialResults) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CondenseResults not implemented")
 }
-func (UnimplementedPartialResultsServiceServer) mustEmbedUnimplementedPartialResultsServiceServer() {}
-func (UnimplementedPartialResultsServiceServer) testEmbeddedByValue()                               {}
+func (UnimplementedCondenseResultsServiceServer) mustEmbedUnimplementedCondenseResultsServiceServer() {
+}
+func (UnimplementedCondenseResultsServiceServer) testEmbeddedByValue() {}
 
-// UnsafePartialResultsServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to PartialResultsServiceServer will
+// UnsafeCondenseResultsServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CondenseResultsServiceServer will
 // result in compilation errors.
-type UnsafePartialResultsServiceServer interface {
-	mustEmbedUnimplementedPartialResultsServiceServer()
+type UnsafeCondenseResultsServiceServer interface {
+	mustEmbedUnimplementedCondenseResultsServiceServer()
 }
 
-func RegisterPartialResultsServiceServer(s grpc.ServiceRegistrar, srv PartialResultsServiceServer) {
-	// If the following call pancis, it indicates UnimplementedPartialResultsServiceServer was
+func RegisterCondenseResultsServiceServer(s grpc.ServiceRegistrar, srv CondenseResultsServiceServer) {
+	// If the following call pancis, it indicates UnimplementedCondenseResultsServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&PartialResultsService_ServiceDesc, srv)
+	s.RegisterService(&CondenseResultsService_ServiceDesc, srv)
 }
 
-func _PartialResultsService_PartialResults_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PartialResultsResponse)
+func _CondenseResultsService_CondenseResults_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PartialResults)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PartialResultsServiceServer).PartialResults(ctx, in)
+		return srv.(CondenseResultsServiceServer).CondenseResults(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PartialResultsService_PartialResults_FullMethodName,
+		FullMethod: CondenseResultsService_CondenseResults_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PartialResultsServiceServer).PartialResults(ctx, req.(*PartialResultsResponse))
+		return srv.(CondenseResultsServiceServer).CondenseResults(ctx, req.(*PartialResults))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// PartialResultsService_ServiceDesc is the grpc.ServiceDesc for PartialResultsService service.
+// CondenseResultsService_ServiceDesc is the grpc.ServiceDesc for CondenseResultsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var PartialResultsService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "service.PartialResultsService",
-	HandlerType: (*PartialResultsServiceServer)(nil),
+var CondenseResultsService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "service.condenseResultsService",
+	HandlerType: (*CondenseResultsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "partialResults",
-			Handler:    _PartialResultsService_PartialResults_Handler,
+			MethodName: "condenseResults",
+			Handler:    _CondenseResultsService_CondenseResults_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -12,9 +12,6 @@ import (
 	"sync"
 )
 
-// Dispatcher splits the file into segments of size N bytes
-// worker reads each segment C bytes at a time
-
 type JD struct {
 	filePath string
 	startSeg int
@@ -30,6 +27,9 @@ type server struct {
 
 func (s *server) jobDetails(ctx context.Context, req *pb.empty) (*pb.jobDetailsResponse, error) {
 	jd := <-s.jobsQ
+	if jd == (JD{}) {
+		return nil, fmt.Errorf("no more jobs available")
+	}
 	resp := &pb.jobDetailsResponse{
 		filePath: jd.filePath,
 		startSeg: int32(jd.startSeg),

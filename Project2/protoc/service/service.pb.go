@@ -59,9 +59,9 @@ func (*Empty) Descriptor() ([]byte, []int) {
 
 type JobDetailsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	FileName      string                 `protobuf:"bytes,1,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
-	StartSegment  int32                  `protobuf:"varint,2,opt,name=start_segment,json=startSegment,proto3" json:"start_segment,omitempty"`
-	EndSegment    int32                  `protobuf:"varint,3,opt,name=end_segment,json=endSegment,proto3" json:"end_segment,omitempty"`
+	FilePath      string                 `protobuf:"bytes,1,opt,name=filePath,proto3" json:"filePath,omitempty"`
+	StartSeg      int32                  `protobuf:"varint,2,opt,name=startSeg,proto3" json:"startSeg,omitempty"`
+	SegLen        int32                  `protobuf:"varint,3,opt,name=segLen,proto3" json:"segLen,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -96,23 +96,23 @@ func (*JobDetailsResponse) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *JobDetailsResponse) GetFileName() string {
+func (x *JobDetailsResponse) GetFilePath() string {
 	if x != nil {
-		return x.FileName
+		return x.FilePath
 	}
 	return ""
 }
 
-func (x *JobDetailsResponse) GetStartSegment() int32 {
+func (x *JobDetailsResponse) GetStartSeg() int32 {
 	if x != nil {
-		return x.StartSegment
+		return x.StartSeg
 	}
 	return 0
 }
 
-func (x *JobDetailsResponse) GetEndSegment() int32 {
+func (x *JobDetailsResponse) GetSegLen() int32 {
 	if x != nil {
-		return x.EndSegment
+		return x.SegLen
 	}
 	return 0
 }
@@ -161,29 +161,30 @@ func (x *JobDataResponse) GetData() []byte {
 	return nil
 }
 
-type PartialResultsResponse struct {
+type PartialResults struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	StartSegment  int32                  `protobuf:"varint,1,opt,name=start_segment,json=startSegment,proto3" json:"start_segment,omitempty"`
-	EndSegment    int32                  `protobuf:"varint,2,opt,name=end_segment,json=endSegment,proto3" json:"end_segment,omitempty"`
-	NuPrimes      int32                  `protobuf:"varint,3,opt,name=nuPrimes,proto3" json:"nuPrimes,omitempty"`
+	FilePath      string                 `protobuf:"bytes,1,opt,name=filePath,proto3" json:"filePath,omitempty"`
+	StartSeg      int32                  `protobuf:"varint,2,opt,name=startSeg,proto3" json:"startSeg,omitempty"`
+	SegLen        int32                  `protobuf:"varint,3,opt,name=segLen,proto3" json:"segLen,omitempty"`
+	NumPrimes     int32                  `protobuf:"varint,4,opt,name=numPrimes,proto3" json:"numPrimes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PartialResultsResponse) Reset() {
-	*x = PartialResultsResponse{}
+func (x *PartialResults) Reset() {
+	*x = PartialResults{}
 	mi := &file_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PartialResultsResponse) String() string {
+func (x *PartialResults) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PartialResultsResponse) ProtoMessage() {}
+func (*PartialResults) ProtoMessage() {}
 
-func (x *PartialResultsResponse) ProtoReflect() protoreflect.Message {
+func (x *PartialResults) ProtoReflect() protoreflect.Message {
 	mi := &file_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -195,28 +196,35 @@ func (x *PartialResultsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PartialResultsResponse.ProtoReflect.Descriptor instead.
-func (*PartialResultsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PartialResults.ProtoReflect.Descriptor instead.
+func (*PartialResults) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *PartialResultsResponse) GetStartSegment() int32 {
+func (x *PartialResults) GetFilePath() string {
 	if x != nil {
-		return x.StartSegment
+		return x.FilePath
+	}
+	return ""
+}
+
+func (x *PartialResults) GetStartSeg() int32 {
+	if x != nil {
+		return x.StartSeg
 	}
 	return 0
 }
 
-func (x *PartialResultsResponse) GetEndSegment() int32 {
+func (x *PartialResults) GetSegLen() int32 {
 	if x != nil {
-		return x.EndSegment
+		return x.SegLen
 	}
 	return 0
 }
 
-func (x *PartialResultsResponse) GetNuPrimes() int32 {
+func (x *PartialResults) GetNumPrimes() int32 {
 	if x != nil {
-		return x.NuPrimes
+		return x.NumPrimes
 	}
 	return 0
 }
@@ -270,31 +278,30 @@ var File_service_proto protoreflect.FileDescriptor
 const file_service_proto_rawDesc = "" +
 	"\n" +
 	"\rservice.proto\x12\aservice\"\a\n" +
-	"\x05Empty\"w\n" +
-	"\x12JobDetailsResponse\x12\x1b\n" +
-	"\tfile_name\x18\x01 \x01(\tR\bfileName\x12#\n" +
-	"\rstart_segment\x18\x02 \x01(\x05R\fstartSegment\x12\x1f\n" +
-	"\vend_segment\x18\x03 \x01(\x05R\n" +
-	"endSegment\"%\n" +
-	"\x0fJobDataResponse\x12\x12\n" +
-	"\x04data\x18\x01 \x01(\fR\x04data\"z\n" +
-	"\x16PartialResultsResponse\x12#\n" +
-	"\rstart_segment\x18\x01 \x01(\x05R\fstartSegment\x12\x1f\n" +
-	"\vend_segment\x18\x02 \x01(\x05R\n" +
-	"endSegment\x12\x1a\n" +
-	"\bnuPrimes\x18\x03 \x01(\x05R\bnuPrimes\".\n" +
-	"\x12StopWorkersRequest\x12\x18\n" +
+	"\x05empty\"d\n" +
+	"\x12jobDetailsResponse\x12\x1a\n" +
+	"\bfilePath\x18\x01 \x01(\tR\bfilePath\x12\x1a\n" +
+	"\bstartSeg\x18\x02 \x01(\x05R\bstartSeg\x12\x16\n" +
+	"\x06segLen\x18\x03 \x01(\x05R\x06segLen\"%\n" +
+	"\x0fjobDataResponse\x12\x12\n" +
+	"\x04data\x18\x01 \x01(\fR\x04data\"~\n" +
+	"\x0epartialResults\x12\x1a\n" +
+	"\bfilePath\x18\x01 \x01(\tR\bfilePath\x12\x1a\n" +
+	"\bstartSeg\x18\x02 \x01(\x05R\bstartSeg\x12\x16\n" +
+	"\x06segLen\x18\x03 \x01(\x05R\x06segLen\x12\x1c\n" +
+	"\tnumPrimes\x18\x04 \x01(\x05R\tnumPrimes\".\n" +
+	"\x12stopWorkersRequest\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage2G\n" +
 	"\n" +
-	"JobService\x129\n" +
+	"jobService\x129\n" +
 	"\n" +
-	"jobDetails\x12\x0e.service.Empty\x1a\x1b.service.JobDetailsResponse2T\n" +
-	"\x0eJobDataService\x12B\n" +
-	"\ajobData\x12\x1b.service.JobDetailsResponse\x1a\x18.service.JobDataResponse0\x012Z\n" +
-	"\x15PartialResultsService\x12A\n" +
-	"\x0epartialResults\x12\x1f.service.PartialResultsResponse\x1a\x0e.service.Empty2P\n" +
+	"jobDetails\x12\x0e.service.empty\x1a\x1b.service.jobDetailsResponse2T\n" +
+	"\x0ejobDataService\x12B\n" +
+	"\ajobData\x12\x1b.service.jobDetailsResponse\x1a\x18.service.jobDataResponse0\x012T\n" +
+	"\x16condenseResultsService\x12:\n" +
+	"\x0fcondenseResults\x12\x17.service.partialResults\x1a\x0e.service.empty2P\n" +
 	"\x12stopWorkersService\x12:\n" +
-	"\vstopWorkers\x12\x1b.service.StopWorkersRequest\x1a\x0e.service.EmptyB\x10Z\x0eprotoc/serviceb\x06proto3"
+	"\vstopWorkers\x12\x1b.service.stopWorkersRequest\x1a\x0e.service.emptyB\x10Z\x0eprotoc/serviceb\x06proto3"
 
 var (
 	file_service_proto_rawDescOnce sync.Once
@@ -310,21 +317,21 @@ func file_service_proto_rawDescGZIP() []byte {
 
 var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_service_proto_goTypes = []any{
-	(*Empty)(nil),                  // 0: service.Empty
-	(*JobDetailsResponse)(nil),     // 1: service.JobDetailsResponse
-	(*JobDataResponse)(nil),        // 2: service.JobDataResponse
-	(*PartialResultsResponse)(nil), // 3: service.PartialResultsResponse
-	(*StopWorkersRequest)(nil),     // 4: service.StopWorkersRequest
+	(*Empty)(nil),              // 0: service.empty
+	(*JobDetailsResponse)(nil), // 1: service.jobDetailsResponse
+	(*JobDataResponse)(nil),    // 2: service.jobDataResponse
+	(*PartialResults)(nil),     // 3: service.partialResults
+	(*StopWorkersRequest)(nil), // 4: service.stopWorkersRequest
 }
 var file_service_proto_depIdxs = []int32{
-	0, // 0: service.JobService.jobDetails:input_type -> service.Empty
-	1, // 1: service.JobDataService.jobData:input_type -> service.JobDetailsResponse
-	3, // 2: service.PartialResultsService.partialResults:input_type -> service.PartialResultsResponse
-	4, // 3: service.stopWorkersService.stopWorkers:input_type -> service.StopWorkersRequest
-	1, // 4: service.JobService.jobDetails:output_type -> service.JobDetailsResponse
-	2, // 5: service.JobDataService.jobData:output_type -> service.JobDataResponse
-	0, // 6: service.PartialResultsService.partialResults:output_type -> service.Empty
-	0, // 7: service.stopWorkersService.stopWorkers:output_type -> service.Empty
+	0, // 0: service.jobService.jobDetails:input_type -> service.empty
+	1, // 1: service.jobDataService.jobData:input_type -> service.jobDetailsResponse
+	3, // 2: service.condenseResultsService.condenseResults:input_type -> service.partialResults
+	4, // 3: service.stopWorkersService.stopWorkers:input_type -> service.stopWorkersRequest
+	1, // 4: service.jobService.jobDetails:output_type -> service.jobDetailsResponse
+	2, // 5: service.jobDataService.jobData:output_type -> service.jobDataResponse
+	0, // 6: service.condenseResultsService.condenseResults:output_type -> service.empty
+	0, // 7: service.stopWorkersService.stopWorkers:output_type -> service.empty
 	4, // [4:8] is the sub-list for method output_type
 	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

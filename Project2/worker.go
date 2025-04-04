@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
 	"fmt"
 	"io"
+	"math/big"
 	"math/rand/v2"
 	"os"
 	pb "protoc/service"
@@ -13,6 +16,31 @@ import (
 
 	"google.golang.org/grpc"
 )
+
+func isPrime(num uint64) bool {
+	bigNum := new(big.Int).SetUint64(uint64(num))
+	return bigNum.ProbablyPrime(10)
+}
+
+func findPrimes(readBuf []byte) int {
+	byte_reader := bytes.NewReader(readBuf)
+	var num uint64
+	num_primes := 0
+	for i := 0; i < len(readBuf); i++ {
+		err := binary.Read(byte_reader, binary.LittleEndian, &num)
+		if err != nil && err != io.EOF {
+			fmt.Println("Error reading from buffer:\n", err)
+			os.Exit(1)
+		}
+		if err == io.EOF {
+			break
+		}
+		if isPrime(uint64(num)) {
+			num_primes++
+		}
+	}
+	return num_primes
+}
 
 func worker(C int, config_file string) {
 	conn, err := grpc.Dial("localhost:5001", grpc.WithInsecure())
@@ -47,27 +75,22 @@ func worker(C int, config_file string) {
 			fmt.Println("Error getting job data:\n", err)
 			break
 		}
-		data := make([]byte, resp.segLen)
+		readBuf := make([]byte, C)
+		numPrimes := 0
 		for {
-			seg, err := stream.Recv()
+			numReadBytes, err := stream.RecvMsg(&pb.jobDataResponse{data: readBuf})
+			if numReadBytes == 0 {
+				break
+			}
+			numPrimes += findPrimes(readBuf)
 			if err == io.EOF {
 				break
 			}
 			if err != nil {
-				fmt.Println("Error receiving job data:\n", err)
+				fmt.Println("Error reading stream data:\n", err)
 				break
 			}
-			if seg == nil {
-				break
-			}
-			data = append(data, seg.Data...)
 		}
-		cancel()
-		if len(data) == 0 {
-			break
-		}
-
-		numPrimes := findPrimes(data)
 
 		ctx, cancel = context.WithTimeout(context.Background(), time.Second)
 		partialAns := &pb.partialResults{
@@ -87,7 +110,6 @@ func worker(C int, config_file string) {
 	}
 }
 
-// worker reads each segment C bytes at a time
 func main() {
 	m := 1
 	C, _ := strconv.Atoi(os.Args[1])

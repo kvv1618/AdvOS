@@ -113,7 +113,9 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go dispatcher(data_file, N, C, jobsQ, &wg)
+
 	wg.Add(1)
 	go consolidator(&wg)
+
 	wg.Wait()
 }

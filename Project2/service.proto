@@ -12,7 +12,7 @@ service jobService {
 message jobDetailsResponse {
     string filePath = 1;
     int32 startSeg = 2;
-    int32 SegLen = 3;
+    int32 segLen = 3;
 }
 
 service jobDataService {
@@ -28,7 +28,7 @@ service condenseResultsService {
 message partialResults {
     string filePath = 1;
     int32 startSeg = 1;
-    int32 endSeg = 2;
+    int32 segLen = 2;
     int32 numPrimes = 3;
 }
 

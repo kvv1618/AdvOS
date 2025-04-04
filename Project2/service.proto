@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package service;
+
+option go_package = "protoc/service";
+
+message empty {}
+
+service jobService {
+    rpc jobDetails (empty) returns (jobDetailsResponse);
+}
+message jobDetailsResponse {
+    string filePath = 1;
+    int32 startSeg = 2;
+    int32 SegLen = 3;
+}
+
+service jobDataService {
+    rpc jobData (jobDetailsResponse) returns (stream jobDataResponse);
+}
+message jobDataResponse {
+    bytes data = 1;
+}
+
+service condenseResultsService {
+    rpc condenseResults (partialResults) returns (empty);
+}
+message partialResults {
+    string filePath = 1;
+    int32 startSeg = 1;
+    int32 endSeg = 2;
+    int32 numPrimes = 3;
+}
+
+service stopWorkersService {
+    rpc stopWorkers (stopWorkersRequest) returns (empty);
+}
+message stopWorkersRequest {
+    string message = 1;
+}

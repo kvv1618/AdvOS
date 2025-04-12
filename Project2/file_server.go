@@ -2,14 +2,18 @@ package main
 
 import (
 	"fmt"
+	pb "github.com/kvv1618/Project2/protoc/service"
 	"google.golang.org/grpc"
 	"net"
 	"os"
-	pb "protoc/service"
 	"sync"
 )
 
-func (s *server) jobData(reg *pb.jobDetailsResponse, stream pb.jobDataService_jobDataServer) error {
+type fileServer struct {
+	pb.UnimplementedJobDataServiceServer
+}
+
+func (s *fileServer) JobData(reg *pb.JobDetailsResponse, stream pb.JobDataService_JobDataServer) error {
 	startSeg := reg.StartSeg
 	segLen := reg.SegLen
 	filePath := reg.FilePath
@@ -28,7 +32,7 @@ func (s *server) jobData(reg *pb.jobDetailsResponse, stream pb.jobDataService_jo
 		return fmt.Errorf("failed to read segment: %v", err)
 	}
 
-	if err := stream.Send(&pb.jobDataResponse{data: data}); err != nil {
+	if err := stream.Send(&pb.JobDataResponse{Data: data}); err != nil {
 		return fmt.Errorf("failed to send segment data: %v", err)
 	}
 
@@ -42,21 +46,20 @@ func fileserver(data_file string, wg *sync.WaitGroup) {
 		fmt.Println("Error listening on port 5003:\n", err)
 		os.Exit(1)
 	}
-	defer listner.Close()
-
+	fmt.Printf("File server listening on port %s\n", ":5003")
 	s := grpc.NewServer()
-	pb.RegisterjobDataServiceServer(s, &server{})
-
+	pb.RegisterJobDataServiceServer(s, &fileServer{})
 	if err := s.Serve(listner); err != nil {
 		fmt.Println("Error serving gRPC server:\n", err)
 		os.Exit(1)
 	}
-
-	select {}
+	defer s.Stop()
+	defer listner.Close()
 }
 
 func main() {
-	data_file, config_file := os.Args[1], os.Args[2]
+	// data_file, config_file := os.Args[1], os.Args[2]
+	data_file := os.Args[1]
 	var wg sync.WaitGroup
 
 	wg.Add(1)

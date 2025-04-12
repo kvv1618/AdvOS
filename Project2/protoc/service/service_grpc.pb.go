@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	JobService_JobDetails_FullMethodName = "/service.jobService/jobDetails"
+	JobService_JobDetails_FullMethodName = "/service.JobService/JobDetails"
 )
 
 // JobServiceClient is the client API for JobService service.
@@ -108,11 +108,11 @@ func _JobService_JobDetails_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var JobService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "service.jobService",
+	ServiceName: "service.JobService",
 	HandlerType: (*JobServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "jobDetails",
+			MethodName: "JobDetails",
 			Handler:    _JobService_JobDetails_Handler,
 		},
 	},
@@ -121,7 +121,7 @@ var JobService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	JobDataService_JobData_FullMethodName = "/service.jobDataService/jobData"
+	JobDataService_JobData_FullMethodName = "/service.JobDataService/JobData"
 )
 
 // JobDataServiceClient is the client API for JobDataService service.
@@ -212,12 +212,12 @@ type JobDataService_JobDataServer = grpc.ServerStreamingServer[JobDataResponse]
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var JobDataService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "service.jobDataService",
+	ServiceName: "service.JobDataService",
 	HandlerType: (*JobDataServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "jobData",
+			StreamName:    "JobData",
 			Handler:       _JobDataService_JobData_Handler,
 			ServerStreams: true,
 		},
@@ -226,7 +226,7 @@ var JobDataService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	CondenseResultsService_CondenseResults_FullMethodName = "/service.condenseResultsService/condenseResults"
+	CondenseResultsService_CondenseResults_FullMethodName = "/service.CondenseResultsService/CondenseResults"
 )
 
 // CondenseResultsServiceClient is the client API for CondenseResultsService service.
@@ -316,11 +316,11 @@ func _CondenseResultsService_CondenseResults_Handler(srv interface{}, ctx contex
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CondenseResultsService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "service.condenseResultsService",
+	ServiceName: "service.CondenseResultsService",
 	HandlerType: (*CondenseResultsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "condenseResults",
+			MethodName: "CondenseResults",
 			Handler:    _CondenseResultsService_CondenseResults_Handler,
 		},
 	},
@@ -329,101 +329,102 @@ var CondenseResultsService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	StopWorkersService_StopWorkers_FullMethodName = "/service.stopWorkersService/stopWorkers"
+	StopConsolidatorService_StopConsolidator_FullMethodName = "/service.StopConsolidatorService/StopConsolidator"
 )
 
-// StopWorkersServiceClient is the client API for StopWorkersService service.
+// StopConsolidatorServiceClient is the client API for StopConsolidatorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type StopWorkersServiceClient interface {
-	StopWorkers(ctx context.Context, in *StopWorkersRequest, opts ...grpc.CallOption) (*Empty, error)
+type StopConsolidatorServiceClient interface {
+	StopConsolidator(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 }
 
-type stopWorkersServiceClient struct {
+type stopConsolidatorServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewStopWorkersServiceClient(cc grpc.ClientConnInterface) StopWorkersServiceClient {
-	return &stopWorkersServiceClient{cc}
+func NewStopConsolidatorServiceClient(cc grpc.ClientConnInterface) StopConsolidatorServiceClient {
+	return &stopConsolidatorServiceClient{cc}
 }
 
-func (c *stopWorkersServiceClient) StopWorkers(ctx context.Context, in *StopWorkersRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *stopConsolidatorServiceClient) StopConsolidator(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, StopWorkersService_StopWorkers_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, StopConsolidatorService_StopConsolidator_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// StopWorkersServiceServer is the server API for StopWorkersService service.
-// All implementations must embed UnimplementedStopWorkersServiceServer
+// StopConsolidatorServiceServer is the server API for StopConsolidatorService service.
+// All implementations must embed UnimplementedStopConsolidatorServiceServer
 // for forward compatibility.
-type StopWorkersServiceServer interface {
-	StopWorkers(context.Context, *StopWorkersRequest) (*Empty, error)
-	mustEmbedUnimplementedStopWorkersServiceServer()
+type StopConsolidatorServiceServer interface {
+	StopConsolidator(context.Context, *Empty) (*Empty, error)
+	mustEmbedUnimplementedStopConsolidatorServiceServer()
 }
 
-// UnimplementedStopWorkersServiceServer must be embedded to have
+// UnimplementedStopConsolidatorServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedStopWorkersServiceServer struct{}
+type UnimplementedStopConsolidatorServiceServer struct{}
 
-func (UnimplementedStopWorkersServiceServer) StopWorkers(context.Context, *StopWorkersRequest) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StopWorkers not implemented")
+func (UnimplementedStopConsolidatorServiceServer) StopConsolidator(context.Context, *Empty) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StopConsolidator not implemented")
 }
-func (UnimplementedStopWorkersServiceServer) mustEmbedUnimplementedStopWorkersServiceServer() {}
-func (UnimplementedStopWorkersServiceServer) testEmbeddedByValue()                            {}
+func (UnimplementedStopConsolidatorServiceServer) mustEmbedUnimplementedStopConsolidatorServiceServer() {
+}
+func (UnimplementedStopConsolidatorServiceServer) testEmbeddedByValue() {}
 
-// UnsafeStopWorkersServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to StopWorkersServiceServer will
+// UnsafeStopConsolidatorServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to StopConsolidatorServiceServer will
 // result in compilation errors.
-type UnsafeStopWorkersServiceServer interface {
-	mustEmbedUnimplementedStopWorkersServiceServer()
+type UnsafeStopConsolidatorServiceServer interface {
+	mustEmbedUnimplementedStopConsolidatorServiceServer()
 }
 
-func RegisterStopWorkersServiceServer(s grpc.ServiceRegistrar, srv StopWorkersServiceServer) {
-	// If the following call pancis, it indicates UnimplementedStopWorkersServiceServer was
+func RegisterStopConsolidatorServiceServer(s grpc.ServiceRegistrar, srv StopConsolidatorServiceServer) {
+	// If the following call pancis, it indicates UnimplementedStopConsolidatorServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&StopWorkersService_ServiceDesc, srv)
+	s.RegisterService(&StopConsolidatorService_ServiceDesc, srv)
 }
 
-func _StopWorkersService_StopWorkers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StopWorkersRequest)
+func _StopConsolidatorService_StopConsolidator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StopWorkersServiceServer).StopWorkers(ctx, in)
+		return srv.(StopConsolidatorServiceServer).StopConsolidator(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: StopWorkersService_StopWorkers_FullMethodName,
+		FullMethod: StopConsolidatorService_StopConsolidator_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StopWorkersServiceServer).StopWorkers(ctx, req.(*StopWorkersRequest))
+		return srv.(StopConsolidatorServiceServer).StopConsolidator(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// StopWorkersService_ServiceDesc is the grpc.ServiceDesc for StopWorkersService service.
+// StopConsolidatorService_ServiceDesc is the grpc.ServiceDesc for StopConsolidatorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var StopWorkersService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "service.stopWorkersService",
-	HandlerType: (*StopWorkersServiceServer)(nil),
+var StopConsolidatorService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "service.StopConsolidatorService",
+	HandlerType: (*StopConsolidatorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "stopWorkers",
-			Handler:    _StopWorkersService_StopWorkers_Handler,
+			MethodName: "StopConsolidator",
+			Handler:    _StopConsolidatorService_StopConsolidator_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -4,37 +4,34 @@ package service;
 
 option go_package = "protoc/service";
 
-message empty {}
+message Empty {}
 
-service jobService {
-    rpc jobDetails (empty) returns (jobDetailsResponse);
+service JobService {
+    rpc JobDetails (Empty) returns (JobDetailsResponse);
 }
-message jobDetailsResponse {
-    string filePath = 1;
-    int32 startSeg = 2;
-    int32 segLen = 3;
+message JobDetailsResponse {
+    string FilePath = 1;
+    int32 StartSeg = 2;
+    int32 SegLen = 3;
 }
 
-service jobDataService {
-    rpc jobData (jobDetailsResponse) returns (stream jobDataResponse);
+service JobDataService {
+    rpc JobData (JobDetailsResponse) returns (stream JobDataResponse);
 }
-message jobDataResponse {
+message JobDataResponse {
     bytes data = 1;
 }
 
-service condenseResultsService {
-    rpc condenseResults (partialResults) returns (empty);
+service CondenseResultsService {
+    rpc CondenseResults (PartialResults) returns (Empty);
 }
-message partialResults {
-    string filePath = 1;
-    int32 startSeg = 2;
-    int32 segLen = 3;
-    int32 numPrimes = 4;
+message PartialResults {
+    string FilePath = 1;
+    int32 StartSeg = 2;
+    int32 SegLen = 3;
+    int32 NumPrimes = 4;
 }
 
-service stopWorkersService {
-    rpc stopWorkers (stopWorkersRequest) returns (empty);
-}
-message stopWorkersRequest {
-    string message = 1;
+service StopConsolidatorService {
+    rpc StopConsolidator (Empty) returns (Empty);
 }

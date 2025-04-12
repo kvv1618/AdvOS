@@ -59,9 +59,9 @@ func (*Empty) Descriptor() ([]byte, []int) {
 
 type JobDetailsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	FilePath      string                 `protobuf:"bytes,1,opt,name=filePath,proto3" json:"filePath,omitempty"`
-	StartSeg      int32                  `protobuf:"varint,2,opt,name=startSeg,proto3" json:"startSeg,omitempty"`
-	SegLen        int32                  `protobuf:"varint,3,opt,name=segLen,proto3" json:"segLen,omitempty"`
+	FilePath      string                 `protobuf:"bytes,1,opt,name=FilePath,proto3" json:"FilePath,omitempty"`
+	StartSeg      int32                  `protobuf:"varint,2,opt,name=StartSeg,proto3" json:"StartSeg,omitempty"`
+	SegLen        int32                  `protobuf:"varint,3,opt,name=SegLen,proto3" json:"SegLen,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -163,10 +163,10 @@ func (x *JobDataResponse) GetData() []byte {
 
 type PartialResults struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	FilePath      string                 `protobuf:"bytes,1,opt,name=filePath,proto3" json:"filePath,omitempty"`
-	StartSeg      int32                  `protobuf:"varint,2,opt,name=startSeg,proto3" json:"startSeg,omitempty"`
-	SegLen        int32                  `protobuf:"varint,3,opt,name=segLen,proto3" json:"segLen,omitempty"`
-	NumPrimes     int32                  `protobuf:"varint,4,opt,name=numPrimes,proto3" json:"numPrimes,omitempty"`
+	FilePath      string                 `protobuf:"bytes,1,opt,name=FilePath,proto3" json:"FilePath,omitempty"`
+	StartSeg      int32                  `protobuf:"varint,2,opt,name=StartSeg,proto3" json:"StartSeg,omitempty"`
+	SegLen        int32                  `protobuf:"varint,3,opt,name=SegLen,proto3" json:"SegLen,omitempty"`
+	NumPrimes     int32                  `protobuf:"varint,4,opt,name=NumPrimes,proto3" json:"NumPrimes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -229,79 +229,33 @@ func (x *PartialResults) GetNumPrimes() int32 {
 	return 0
 }
 
-type StopWorkersRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *StopWorkersRequest) Reset() {
-	*x = StopWorkersRequest{}
-	mi := &file_service_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *StopWorkersRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*StopWorkersRequest) ProtoMessage() {}
-
-func (x *StopWorkersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use StopWorkersRequest.ProtoReflect.Descriptor instead.
-func (*StopWorkersRequest) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *StopWorkersRequest) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
 var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
 	"\n" +
 	"\rservice.proto\x12\aservice\"\a\n" +
-	"\x05empty\"d\n" +
-	"\x12jobDetailsResponse\x12\x1a\n" +
-	"\bfilePath\x18\x01 \x01(\tR\bfilePath\x12\x1a\n" +
-	"\bstartSeg\x18\x02 \x01(\x05R\bstartSeg\x12\x16\n" +
-	"\x06segLen\x18\x03 \x01(\x05R\x06segLen\"%\n" +
-	"\x0fjobDataResponse\x12\x12\n" +
+	"\x05Empty\"d\n" +
+	"\x12JobDetailsResponse\x12\x1a\n" +
+	"\bFilePath\x18\x01 \x01(\tR\bFilePath\x12\x1a\n" +
+	"\bStartSeg\x18\x02 \x01(\x05R\bStartSeg\x12\x16\n" +
+	"\x06SegLen\x18\x03 \x01(\x05R\x06SegLen\"%\n" +
+	"\x0fJobDataResponse\x12\x12\n" +
 	"\x04data\x18\x01 \x01(\fR\x04data\"~\n" +
-	"\x0epartialResults\x12\x1a\n" +
-	"\bfilePath\x18\x01 \x01(\tR\bfilePath\x12\x1a\n" +
-	"\bstartSeg\x18\x02 \x01(\x05R\bstartSeg\x12\x16\n" +
-	"\x06segLen\x18\x03 \x01(\x05R\x06segLen\x12\x1c\n" +
-	"\tnumPrimes\x18\x04 \x01(\x05R\tnumPrimes\".\n" +
-	"\x12stopWorkersRequest\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2G\n" +
+	"\x0ePartialResults\x12\x1a\n" +
+	"\bFilePath\x18\x01 \x01(\tR\bFilePath\x12\x1a\n" +
+	"\bStartSeg\x18\x02 \x01(\x05R\bStartSeg\x12\x16\n" +
+	"\x06SegLen\x18\x03 \x01(\x05R\x06SegLen\x12\x1c\n" +
+	"\tNumPrimes\x18\x04 \x01(\x05R\tNumPrimes2G\n" +
 	"\n" +
-	"jobService\x129\n" +
+	"JobService\x129\n" +
 	"\n" +
-	"jobDetails\x12\x0e.service.empty\x1a\x1b.service.jobDetailsResponse2T\n" +
-	"\x0ejobDataService\x12B\n" +
-	"\ajobData\x12\x1b.service.jobDetailsResponse\x1a\x18.service.jobDataResponse0\x012T\n" +
-	"\x16condenseResultsService\x12:\n" +
-	"\x0fcondenseResults\x12\x17.service.partialResults\x1a\x0e.service.empty2P\n" +
-	"\x12stopWorkersService\x12:\n" +
-	"\vstopWorkers\x12\x1b.service.stopWorkersRequest\x1a\x0e.service.emptyB\x10Z\x0eprotoc/serviceb\x06proto3"
+	"JobDetails\x12\x0e.service.Empty\x1a\x1b.service.JobDetailsResponse2T\n" +
+	"\x0eJobDataService\x12B\n" +
+	"\aJobData\x12\x1b.service.JobDetailsResponse\x1a\x18.service.JobDataResponse0\x012T\n" +
+	"\x16CondenseResultsService\x12:\n" +
+	"\x0fCondenseResults\x12\x17.service.PartialResults\x1a\x0e.service.Empty2M\n" +
+	"\x17StopConsolidatorService\x122\n" +
+	"\x10StopConsolidator\x12\x0e.service.Empty\x1a\x0e.service.EmptyB\x10Z\x0eprotoc/serviceb\x06proto3"
 
 var (
 	file_service_proto_rawDescOnce sync.Once
@@ -315,23 +269,22 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_service_proto_goTypes = []any{
-	(*Empty)(nil),              // 0: service.empty
-	(*JobDetailsResponse)(nil), // 1: service.jobDetailsResponse
-	(*JobDataResponse)(nil),    // 2: service.jobDataResponse
-	(*PartialResults)(nil),     // 3: service.partialResults
-	(*StopWorkersRequest)(nil), // 4: service.stopWorkersRequest
+	(*Empty)(nil),              // 0: service.Empty
+	(*JobDetailsResponse)(nil), // 1: service.JobDetailsResponse
+	(*JobDataResponse)(nil),    // 2: service.JobDataResponse
+	(*PartialResults)(nil),     // 3: service.PartialResults
 }
 var file_service_proto_depIdxs = []int32{
-	0, // 0: service.jobService.jobDetails:input_type -> service.empty
-	1, // 1: service.jobDataService.jobData:input_type -> service.jobDetailsResponse
-	3, // 2: service.condenseResultsService.condenseResults:input_type -> service.partialResults
-	4, // 3: service.stopWorkersService.stopWorkers:input_type -> service.stopWorkersRequest
-	1, // 4: service.jobService.jobDetails:output_type -> service.jobDetailsResponse
-	2, // 5: service.jobDataService.jobData:output_type -> service.jobDataResponse
-	0, // 6: service.condenseResultsService.condenseResults:output_type -> service.empty
-	0, // 7: service.stopWorkersService.stopWorkers:output_type -> service.empty
+	0, // 0: service.JobService.JobDetails:input_type -> service.Empty
+	1, // 1: service.JobDataService.JobData:input_type -> service.JobDetailsResponse
+	3, // 2: service.CondenseResultsService.CondenseResults:input_type -> service.PartialResults
+	0, // 3: service.StopConsolidatorService.StopConsolidator:input_type -> service.Empty
+	1, // 4: service.JobService.JobDetails:output_type -> service.JobDetailsResponse
+	2, // 5: service.JobDataService.JobData:output_type -> service.JobDataResponse
+	0, // 6: service.CondenseResultsService.CondenseResults:output_type -> service.Empty
+	0, // 7: service.StopConsolidatorService.StopConsolidator:output_type -> service.Empty
 	4, // [4:8] is the sub-list for method output_type
 	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -350,7 +303,7 @@ func file_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   4,
 		},

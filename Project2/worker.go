@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/binary"
@@ -45,23 +46,42 @@ func findPrimes(readBuf []byte) int {
 	return num_primes
 }
 
-func worker(C int, config_file string, wg *sync.WaitGroup) {
+func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string) {
 	defer wg.Done()
-	dispatcherConn, err := grpc.NewClient("localhost:5001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	dispatcherPort, err := strconv.Atoi(ports["dispatcher"]["port"])
+	if err != nil {
+		fmt.Println("Error converting dispatcher port to int:\n", err)
+		os.Exit(1)
+	}
+	dispatcherIp := ports["dispatcher"]["ip"]
+	dispatcherConn, err := grpc.NewClient(fmt.Sprintf("%s:%d", dispatcherIp, dispatcherPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Println("Error connecting to dispatcher:\n", err)
 		os.Exit(1)
 	}
 	defer dispatcherConn.Close()
 
-	consolidatorConn, err := grpc.NewClient("localhost:5002", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	consolidatorPort, err := strconv.Atoi(ports["consolidator"]["port"])
+	if err != nil {
+		fmt.Println("Error converting consolidator port to int:\n", err)
+		os.Exit(1)
+	}
+	consolidatorIp := ports["consolidator"]["ip"]
+	consolidatorConn, err := grpc.NewClient(fmt.Sprintf("%s:%d", consolidatorIp, consolidatorPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Println("Error connecting to consolidator:\n", err)
 		os.Exit(1)
 	}
 	defer consolidatorConn.Close()
 
-	fileServerConn, err := grpc.NewClient("localhost:5003", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	fileServerPort, err := strconv.Atoi(ports["fileserver"]["port"])
+	if err != nil {
+		fmt.Println("Error converting file server port to int:\n", err)
+		os.Exit(1)
+	}
+	fileServerIp := ports["fileserver"]["ip"]
+	fileServerConn, err := grpc.NewClient(fmt.Sprintf("%s:%d", fileServerIp, fileServerPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Println("Error connecting to file server:\n", err)
 		os.Exit(1)
@@ -135,16 +155,35 @@ func main() {
 	if len(os.Args) > 1 {
 		m, _ = strconv.Atoi(os.Args[1])
 	}
-	// config_file := os.Args[2]
+	config_file := os.Args[2]
 	if len(os.Args) > 3 {
 		C, _ = strconv.Atoi(os.Args[3])
+	}
+
+	file, err := os.Open(config_file)
+	if err != nil {
+		fmt.Println("Error opening config file:\n", err)
+		os.Exit(1)
+	}
+	defer file.Close()
+	ports := make(map[string]map[string]string)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.Split(scanner.Text(), " ")
+		if len(line) != 3 {
+			fmt.Println("Invalid config file format")
+			os.Exit(1)
+		}
+		ports[line[0]] = map[string]string{
+			"port": line[2],
+			"ip":   line[1],
+		}
 	}
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 	for i := 0; i < m; i++ {
-		// go worker(C, config_file)
-		go worker(C, "", &wg)
+		go worker(C, &wg, ports)
 	}
 	wg.Wait()
 

@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	pb "github.com/kvv1618/Project2/protoc/service"
-	"google.golang.org/grpc"
 	"net"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
+
+	pb "github.com/kvv1618/Project2/protoc/service"
+	"google.golang.org/grpc"
 )
 
 type fileServer struct {
@@ -39,14 +43,20 @@ func (s *fileServer) JobData(reg *pb.JobDetailsResponse, stream pb.JobDataServic
 	return nil
 }
 
-func fileserver(data_file string, wg *sync.WaitGroup) {
+func fileserver(data_file string, wg *sync.WaitGroup, str_port string) {
 	defer wg.Done()
-	listner, err := net.Listen("tcp", ":5003")
+	port, err := strconv.Atoi(str_port)
 	if err != nil {
-		fmt.Println("Error listening on port 5003:\n", err)
+		fmt.Println("Error converting port to int:\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("File server listening on port %s\n", ":5003")
+
+	listner, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		fmt.Println("Error listening on port %d:\n", port, err)
+		os.Exit(1)
+	}
+	fmt.Printf("File server listening on port %s\n", fmt.Sprintf(":%d", port))
 	s := grpc.NewServer()
 	pb.RegisterJobDataServiceServer(s, &fileServer{})
 	if err := s.Serve(listner); err != nil {
@@ -58,11 +68,30 @@ func fileserver(data_file string, wg *sync.WaitGroup) {
 }
 
 func main() {
-	// data_file, config_file := os.Args[1], os.Args[2]
-	data_file := os.Args[1]
+	data_file, config_file := os.Args[1], os.Args[2]
+	file, err := os.Open(config_file)
+	if err != nil {
+		fmt.Println("Error opening config file:\n", err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
+	ports := make(map[string]map[string]string)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.Split(scanner.Text(), " ")
+		if len(line) != 3 {
+			fmt.Println("Invalid config file format")
+			os.Exit(1)
+		}
+		ports[line[0]] = map[string]string{
+			"port": line[2],
+			"ip":   line[1],
+		}
+	}
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	go fileserver(data_file, &wg)
+	go fileserver(data_file, &wg, ports["fileserver"]["port"])
 	wg.Wait()
 }

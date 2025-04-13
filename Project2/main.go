@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"container/list"
 	"context"
 	"fmt"
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -45,15 +47,20 @@ func (s *server) JobDetails(ctx context.Context, req *pb.Empty) (*pb.JobDetailsR
 	return resp, nil
 }
 
-func dispatcher(filePath string, n int, c int, jobsQ *list.List, wg *sync.WaitGroup) {
+func dispatcher(filePath string, n int, c int, jobsQ *list.List, wg *sync.WaitGroup, str_port string) {
 	defer wg.Done()
-	listner, err := net.Listen("tcp", ":5001")
+	port, err := strconv.Atoi(str_port)
 	if err != nil {
-		fmt.Println("Error listening on port 5001:\n", err)
+		fmt.Println("Error converting port to int:\n", err)
+		os.Exit(1)
+	}
+	listner, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		fmt.Println("Error listening on port %d:\n", port, err)
 		os.Exit(1)
 	}
 	defer listner.Close()
-	fmt.Printf("Dispatcher listening on port %s\n", ":5001")
+	fmt.Printf("Dispatcher listening on port %s\n", fmt.Sprintf(":%d", port))
 
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -100,14 +107,19 @@ func (s *server) StopConsolidator(ctx context.Context, req *pb.Empty) (*pb.Empty
 	return &pb.Empty{}, nil
 }
 
-func consolidator(wg *sync.WaitGroup) {
+func consolidator(wg *sync.WaitGroup, str_port string) {
 	defer wg.Done()
-	listner, err := net.Listen("tcp", ":5002")
+	port, err := strconv.Atoi(str_port)
 	if err != nil {
-		fmt.Println("Error listening on port 5002:\n", err)
+		fmt.Println("Error converting port to int:\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Consolidator listening on port %s\n", ":5002")
+	listner, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		fmt.Println("Error listening on port %d:\n", port, err)
+		os.Exit(1)
+	}
+	fmt.Printf("Consolidator listening on port %s\n", fmt.Sprintf(":%d", port))
 	s := grpc.NewServer()
 	serverInstance := &server{}
 	pb.RegisterCondenseResultsServiceServer(s, serverInstance)
@@ -128,17 +140,35 @@ func main() {
 	if len(os.Args) > 2 {
 		C, _ = strconv.Atoi(os.Args[2])
 	}
-	// data_file, config_file := os.Args[3], os.Args[4]
-	data_file := os.Args[3]
+	data_file, config_file := os.Args[3], os.Args[4]
+	file, err := os.Open(config_file)
+	if err != nil {
+		fmt.Println("Error opening config file:\n", err)
+		os.Exit(1)
+	}
+	defer file.Close()
+	ports := make(map[string]map[string]string)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.Split(scanner.Text(), " ")
+		if len(line) != 3 {
+			fmt.Println("Invalid config file format")
+			os.Exit(1)
+		}
+		ports[line[0]] = map[string]string{
+			"port": line[2],
+			"ip":   line[1],
+		}
+	}
 
 	jobsQ := list.New()
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go dispatcher(data_file, N, C, jobsQ, &wg)
+	go dispatcher(data_file, N, C, jobsQ, &wg, ports["dispatcher"]["port"])
 
 	wg.Add(1)
-	go consolidator(&wg)
+	go consolidator(&wg, ports["consolidator"]["port"])
 
 	wg.Wait()
 

@@ -133,11 +133,11 @@ func worker(C int, config_file string, wg *sync.WaitGroup) {
 func main() {
 	m, C := 1, 1000
 	if len(os.Args) > 1 {
-		C, _ = strconv.Atoi(os.Args[1])
+		m, _ = strconv.Atoi(os.Args[1])
 	}
 	// config_file := os.Args[2]
 	if len(os.Args) > 3 {
-		m, _ = strconv.Atoi(os.Args[3])
+		C, _ = strconv.Atoi(os.Args[3])
 	}
 
 	var wg sync.WaitGroup

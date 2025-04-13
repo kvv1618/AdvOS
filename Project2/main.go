@@ -4,12 +4,14 @@ import (
 	"container/list"
 	"context"
 	"fmt"
-	pb "github.com/kvv1618/Project2/protoc/service"
-	"google.golang.org/grpc"
 	"net"
 	"os"
 	"strconv"
 	"sync"
+	"time"
+
+	pb "github.com/kvv1618/Project2/protoc/service"
+	"google.golang.org/grpc"
 )
 
 type JD struct {
@@ -91,7 +93,10 @@ func (s *server) CondenseResults(ctx context.Context, req *pb.PartialResults) (*
 
 func (s *server) StopConsolidator(ctx context.Context, req *pb.Empty) (*pb.Empty, error) {
 	fmt.Println("Total number of primes found:", s.totalPrimes)
-	os.Exit(0)
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		os.Exit(0)
+	}()
 	return &pb.Empty{}, nil
 }
 

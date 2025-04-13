@@ -22,6 +22,7 @@ type JD struct {
 	segLen   int
 }
 type server struct {
+	startTime   time.Time
 	jobsQ       *list.List
 	totalPrimes int
 	pb.UnimplementedJobServiceServer
@@ -101,13 +102,15 @@ func (s *server) CondenseResults(ctx context.Context, req *pb.PartialResults) (*
 func (s *server) StopConsolidator(ctx context.Context, req *pb.Empty) (*pb.Empty, error) {
 	fmt.Println("Total number of primes found:", s.totalPrimes)
 	go func() {
+		fmt.Println("Elapsed time (ms):", time.Since(s.startTime).Milliseconds(), "ms")
+
 		time.Sleep(100 * time.Millisecond)
 		os.Exit(0)
 	}()
 	return &pb.Empty{}, nil
 }
 
-func consolidator(wg *sync.WaitGroup, str_port string) {
+func consolidator(wg *sync.WaitGroup, str_port string, start time.Time) {
 	defer wg.Done()
 	port, err := strconv.Atoi(str_port)
 	if err != nil {
@@ -121,7 +124,9 @@ func consolidator(wg *sync.WaitGroup, str_port string) {
 	}
 	fmt.Printf("Consolidator listening on port %s\n", fmt.Sprintf(":%d", port))
 	s := grpc.NewServer()
-	serverInstance := &server{}
+	serverInstance := &server{
+		startTime: start,
+	}
 	pb.RegisterCondenseResultsServiceServer(s, serverInstance)
 	pb.RegisterStopConsolidatorServiceServer(s, serverInstance)
 	if err := s.Serve(listner); err != nil {
@@ -133,6 +138,8 @@ func consolidator(wg *sync.WaitGroup, str_port string) {
 }
 
 func main() {
+	start := time.Now()
+
 	N, C := 64000, 1000
 	if len(os.Args) > 1 {
 		N, _ = strconv.Atoi(os.Args[1])
@@ -168,7 +175,7 @@ func main() {
 	go dispatcher(data_file, N, C, jobsQ, &wg, ports["dispatcher"]["port"])
 
 	wg.Add(1)
-	go consolidator(&wg, ports["consolidator"]["port"])
+	go consolidator(&wg, ports["consolidator"]["port"], start)
 
 	wg.Wait()
 

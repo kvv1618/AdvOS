@@ -10,6 +10,7 @@ import (
 	"math/big"
 	"math/rand/v2"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -46,7 +47,7 @@ func findPrimes(readBuf []byte) int {
 	return num_primes
 }
 
-func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string) {
+func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, workerStats *sync.Map, id int) {
 	defer wg.Done()
 
 	dispatcherPort, err := strconv.Atoi(ports["dispatcher"]["port"])
@@ -146,6 +147,12 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string) {
 		}
 		cancel()
 
+		if val, ok := workerStats.Load(id); ok {
+			workerStats.Store(id, val.(int)+1)
+		} else {
+			workerStats.Store(id, 1)
+		}
+
 		time.Sleep(time.Duration(rand.IntN(201)+400) * time.Millisecond)
 	}
 }
@@ -181,13 +188,35 @@ func main() {
 	}
 
 	var wg sync.WaitGroup
+	var workerStats sync.Map
 	wg.Add(1)
 	for i := 0; i < m; i++ {
-		go worker(C, &wg, ports)
+		go worker(C, &wg, ports, &workerStats, i)
 	}
 	wg.Wait()
 
-	conn, err := grpc.NewClient("localhost:5002", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	jobStats := make([]int, 0, m)
+	workerStats.Range(func(key, value interface{}) bool {
+		jobStats = append(jobStats, value.(int))
+		return true
+	})
+	sort.Ints(jobStats)
+	min, max := jobStats[0], jobStats[len(jobStats)-1]
+	sum, median := 0, 0
+	for _, val := range jobStats {
+		sum += val
+	}
+	average := float64(sum) / float64(len(jobStats))
+	if len(jobStats)%2 == 0 {
+		median = (jobStats[len(jobStats)/2-1] + jobStats[len(jobStats)/2]) / 2
+	} else {
+		median = jobStats[len(jobStats)/2]
+	}
+	fmt.Printf("Total jobs completed: %d\n", sum)
+	fmt.Printf("Worker stats(Jobs completed by a worker):\n")
+	fmt.Printf("Min: %d, Max: %d, Average: %.2f, Median: %d\n", min, max, average, median)
+
+	conn, err := grpc.NewClient(fmt.Sprintf("%s:%s", ports["consolidator"]["ip"], ports["consolidator"]["port"]), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Println("Error connecting to consolidator:\n", err)
 		os.Exit(1)

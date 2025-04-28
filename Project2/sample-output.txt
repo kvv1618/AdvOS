@@ -1,0 +1,50 @@
+- Commands:
+    - go run file_server.go ../test-binaries/binary_datafile_00002.dat config_file.txt
+    - go run main.go 6400 1000 ../test-binaries/binary_datafile_00002.dat config_file.txt
+    - go run worker.go 3 config_file.txt
+
+- Outputs:
+    - Worker:
+    Total jobs completed: 34
+    Worker stats(Jobs completed by a worker):
+    Min: 11, Max: 12, Average: 11.33, Median: 11
+    - Main:
+    Consolidator listening on port :5002
+    Dispatcher listening on port :5001
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 0, 6400, 24
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 6400, 6400, 13
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 12800, 6400, 13
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 19200, 6400, 20
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 25600, 6400, 18
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 32000, 6400, 13
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 38400, 6400, 12
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 44800, 6400, 25
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 51200, 6400, 12
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 57600, 6400, 20
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 64000, 6400, 25
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 70400, 6400, 20
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 76800, 6400, 13
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 83200, 6400, 23
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 89600, 6400, 20
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 96000, 6400, 17
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 102400, 6400, 21
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 108800, 6400, 15
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 115200, 6400, 15
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 121600, 6400, 15
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 128000, 6400, 21
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 134400, 6400, 13
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 140800, 6400, 15
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 147200, 6400, 17
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 153600, 6400, 18
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 160000, 6400, 20
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 166400, 6400, 22
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 172800, 6400, 19
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 179200, 6400, 15
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 185600, 6400, 26
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 192000, 6400, 12
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 198400, 6400, 16
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 204800, 6400, 19
+    Received partial results: ../test-binaries/binary_datafile_00002.dat, 211200, 6400, 18
+    Total number of primes found: 605
+    Elapsed time (ms): 9768 ms
+    

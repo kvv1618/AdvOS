@@ -2,9 +2,10 @@ package main
 
 import (
 	"bufio"
-	"container/list"
 	"context"
 	"fmt"
+	"io"
+	"math"
 	"net"
 	"os"
 	"strconv"
@@ -23,7 +24,7 @@ type JD struct {
 }
 type server struct {
 	startTime   time.Time
-	jobsQ       *list.List
+	jobsQ       chan JD
 	totalPrimes int
 	pb.UnimplementedJobServiceServer
 	pb.UnimplementedCondenseResultsServiceServer
@@ -31,24 +32,20 @@ type server struct {
 }
 
 func (s *server) JobDetails(ctx context.Context, req *pb.Empty) (*pb.JobDetailsResponse, error) {
-	if s.jobsQ.Len() == 0 {
+	select {
+	case jd := <-s.jobsQ:
+		resp := &pb.JobDetailsResponse{
+			FilePath: jd.filePath,
+			StartSeg: int32(jd.startSeg),
+			SegLen:   int32(jd.segLen),
+		}
+		return resp, nil
+	default:
 		return nil, fmt.Errorf("no more jobs available")
 	}
-	jdElement := s.jobsQ.Front()
-	jd, ok := jdElement.Value.(JD)
-	if !ok {
-		return nil, fmt.Errorf("failed to cast job details")
-	}
-	resp := &pb.JobDetailsResponse{
-		FilePath: jd.filePath,
-		StartSeg: int32(jd.startSeg),
-		SegLen:   int32(jd.segLen),
-	}
-	s.jobsQ.Remove(jdElement)
-	return resp, nil
 }
 
-func dispatcher(filePath string, n int, c int, jobsQ *list.List, wg *sync.WaitGroup, str_port string) {
+func dispatcher(filePath string, n int, c int, wg *sync.WaitGroup, str_port string) {
 	defer wg.Done()
 	port, err := strconv.Atoi(str_port)
 	if err != nil {
@@ -69,17 +66,33 @@ func dispatcher(filePath string, n int, c int, jobsQ *list.List, wg *sync.WaitGr
 		os.Exit(1)
 	}
 	defer file.Close()
-	fileInfo, err := file.Stat()
+
+	fileStats, err := file.Stat()
 	if err != nil {
-		fmt.Println("Error getting file info:\n", err)
+		fmt.Println("Error getting file stats:\n", err)
 		os.Exit(1)
 	}
-	fileSize := fileInfo.Size()
+	channelMaxSize := int(math.Ceil(float64(fileStats.Size()) / float64(n)))
+	jobsQ := make(chan JD, channelMaxSize)
+
 	segment := 0
-	for segment < int(fileSize) {
-		jd := JD{filePath, segment, n}
-		jobsQ.PushBack(jd)
-		segment += n
+	read_buf := make([]byte, n)
+	for {
+		numReadBytes, err := file.Read(read_buf)
+		if numReadBytes == 0 {
+			break
+		}
+		if err == nil || err == io.EOF {
+			jd := JD{filePath, segment, numReadBytes}
+			jobsQ <- jd
+		} else {
+			fmt.Println("Error reading file:\n", err)
+			os.Exit(1)
+		}
+		if err == io.EOF {
+			break
+		}
+		segment += numReadBytes
 	}
 
 	s := grpc.NewServer()
@@ -168,11 +181,9 @@ func main() {
 		}
 	}
 
-	jobsQ := list.New()
-
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go dispatcher(data_file, N, C, jobsQ, &wg, ports["dispatcher"]["port"])
+	go dispatcher(data_file, N, C, &wg, ports["dispatcher"]["port"])
 
 	wg.Add(1)
 	go consolidator(&wg, ports["consolidator"]["port"], start)

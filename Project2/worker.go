@@ -93,18 +93,20 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, worke
 	fileServerClinet := pb.NewJobDataServiceClient(fileServerConn)
 	consolidaterClient := pb.NewCondenseResultsServiceClient(consolidatorConn)
 	for {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		resp, err := dispatcherClient.JobDetails(ctx, &pb.Empty{})
 		if err != nil && strings.Contains(err.Error(), "no more jobs available") {
 			break
 		}
 		if err != nil || resp == nil {
-			fmt.Println(err)
-			os.Exit(1)
+			// fmt.Println("Error getting job details:\n", err)
+			cancel()
+			time.Sleep(time.Duration(rand.IntN(201)+400) * time.Millisecond)
+			continue
 		}
 		cancel()
 
-		ctx, cancel = context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel = context.WithCancel(context.Background())
 		stream, err := fileServerClinet.JobData(ctx, &pb.JobDetailsResponse{
 			FilePath: resp.FilePath,
 			StartSeg: resp.StartSeg,
@@ -114,6 +116,7 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, worke
 			fmt.Println("Error getting job data:\n", err)
 			os.Exit(1)
 		}
+
 		numPrimes := 0
 		numReadBytes, err := stream.Recv()
 		if err == io.EOF {
@@ -130,10 +133,11 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, worke
 			}
 			readBuf := numReadBytes.Data[i:end]
 			numPrimes += findPrimes(readBuf)
+			numPrimes += 0
 		}
 		cancel()
 
-		ctx, cancel = context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel = context.WithCancel(context.Background())
 		partialAns := &pb.PartialResults{
 			FilePath:  resp.FilePath,
 			StartSeg:  resp.StartSeg,
@@ -152,7 +156,6 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, worke
 		} else {
 			workerStats.Store(id, 1)
 		}
-
 		time.Sleep(time.Duration(rand.IntN(201)+400) * time.Millisecond)
 	}
 }
@@ -189,8 +192,8 @@ func main() {
 
 	var wg sync.WaitGroup
 	var workerStats sync.Map
-	wg.Add(1)
 	for i := 0; i < m; i++ {
+		wg.Add(1)
 		go worker(C, &wg, ports, &workerStats, i)
 	}
 	wg.Wait()

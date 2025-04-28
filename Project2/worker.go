@@ -99,7 +99,6 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, worke
 			break
 		}
 		if err != nil || resp == nil {
-			// fmt.Println("Error getting job details:\n", err)
 			cancel()
 			time.Sleep(time.Duration(rand.IntN(201)+400) * time.Millisecond)
 			continue
@@ -120,10 +119,12 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, worke
 		numPrimes := 0
 		numReadBytes, err := stream.Recv()
 		if err == io.EOF {
+			cancel()
 			break
 		}
 		if err != nil {
 			fmt.Println("Error reading stream data:\n", err)
+			cancel()
 			os.Exit(1)
 		}
 		for i := 0; i < len(numReadBytes.Data); i += C {
@@ -147,6 +148,7 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, worke
 		_, err = consolidaterClient.CondenseResults(ctx, partialAns)
 		if err != nil {
 			fmt.Println("Error sending partial results:\n", err)
+			cancel()
 			os.Exit(1)
 		}
 		cancel()
@@ -198,9 +200,11 @@ func main() {
 	}
 	wg.Wait()
 
-	jobStats := make([]int, 0, m)
+	jobStats := make([]int, m)
+	i := 0
 	workerStats.Range(func(key, value interface{}) bool {
-		jobStats = append(jobStats, value.(int))
+		jobStats[i] = value.(int)
+		i++
 		return true
 	})
 	sort.Ints(jobStats)

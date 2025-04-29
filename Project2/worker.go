@@ -96,6 +96,7 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, worke
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		resp, err := dispatcherClient.JobDetails(ctx, &pb.Empty{})
 		if err != nil && strings.Contains(err.Error(), "no more jobs available") {
+			cancel()
 			break
 		}
 		if err != nil || resp == nil {
@@ -113,28 +114,29 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, worke
 		})
 		if err != nil {
 			fmt.Println("Error getting job data:\n", err)
+			cancel()
 			os.Exit(1)
 		}
-
 		numPrimes := 0
-		numReadBytes, err := stream.Recv()
-		if err == io.EOF {
-			cancel()
-			break
-		}
-		if err != nil {
-			fmt.Println("Error reading stream data:\n", err)
-			cancel()
-			os.Exit(1)
-		}
-		for i := 0; i < len(numReadBytes.Data); i += C {
-			end := i + C
-			if end > len(numReadBytes.Data) {
-				end = len(numReadBytes.Data)
+		for {
+			numReadBytes, err := stream.Recv()
+			if err == io.EOF {
+				break
 			}
-			readBuf := numReadBytes.Data[i:end]
-			numPrimes += findPrimes(readBuf)
-			numPrimes += 0
+			if err != nil {
+				fmt.Println("Error reading stream data:\n", err)
+				cancel()
+				os.Exit(1)
+			}
+			for i := 0; i < len(numReadBytes.Data); i += C {
+				end := i + C
+				if end > len(numReadBytes.Data) {
+					end = len(numReadBytes.Data)
+				}
+				readBuf := numReadBytes.Data[i:end]
+				numPrimes += findPrimes(readBuf)
+				numPrimes += 0
+			}
 		}
 		cancel()
 
@@ -143,7 +145,7 @@ func worker(C int, wg *sync.WaitGroup, ports map[string]map[string]string, worke
 			FilePath:  resp.FilePath,
 			StartSeg:  resp.StartSeg,
 			SegLen:    resp.SegLen,
-			NumPrimes: int32(numPrimes),
+			NumPrimes: int64(numPrimes),
 		}
 		_, err = consolidaterClient.CondenseResults(ctx, partialAns)
 		if err != nil {

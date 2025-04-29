@@ -59,12 +59,12 @@ func fileserver(data_file string, wg *sync.WaitGroup, str_port string) {
 	fmt.Printf("File server listening on port %s\n", fmt.Sprintf(":%d", port))
 	s := grpc.NewServer()
 	pb.RegisterJobDataServiceServer(s, &fileServer{})
-	if err := s.Serve(listner); err != nil {
-		fmt.Println("Error serving gRPC server:\n", err)
-		os.Exit(1)
-	}
 	defer s.Stop()
 	defer listner.Close()
+	if err := s.Serve(listner); err != nil {
+		fmt.Println("Error serving gRPC server:\n", err)
+		return
+	}
 }
 
 func main() {
@@ -94,4 +94,6 @@ func main() {
 	wg.Add(1)
 	go fileserver(data_file, &wg, ports["fileserver"]["port"])
 	wg.Wait()
+
+	fmt.Println("File server closed")
 }

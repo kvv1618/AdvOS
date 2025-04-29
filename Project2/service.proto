@@ -11,8 +11,8 @@ service JobService {
 }
 message JobDetailsResponse {
     string FilePath = 1;
-    int32 StartSeg = 2;
-    int32 SegLen = 3;
+    int64 StartSeg = 2;
+    int64 SegLen = 3;
 }
 
 service JobDataService {
@@ -27,9 +27,9 @@ service CondenseResultsService {
 }
 message PartialResults {
     string FilePath = 1;
-    int32 StartSeg = 2;
-    int32 SegLen = 3;
-    int32 NumPrimes = 4;
+    int64 StartSeg = 2;
+    int64 SegLen = 3;
+    int64 NumPrimes = 4;
 }
 
 service StopConsolidatorService {

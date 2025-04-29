@@ -36,8 +36,8 @@ func (s *server) JobDetails(ctx context.Context, req *pb.Empty) (*pb.JobDetailsR
 	case jd := <-s.jobsQ:
 		resp := &pb.JobDetailsResponse{
 			FilePath: jd.filePath,
-			StartSeg: int32(jd.startSeg),
-			SegLen:   int32(jd.segLen),
+			StartSeg: int64(jd.startSeg),
+			SegLen:   int64(jd.segLen),
 		}
 		return resp, nil
 	default:
@@ -94,7 +94,6 @@ func dispatcher(filePath string, n int, c int, wg *sync.WaitGroup, str_port stri
 		}
 		segment += numReadBytes
 	}
-
 	s := grpc.NewServer()
 	pb.RegisterJobServiceServer(s, &server{
 		jobsQ: jobsQ,

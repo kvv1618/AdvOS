@@ -60,8 +60,8 @@ func (*Empty) Descriptor() ([]byte, []int) {
 type JobDetailsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FilePath      string                 `protobuf:"bytes,1,opt,name=FilePath,proto3" json:"FilePath,omitempty"`
-	StartSeg      int32                  `protobuf:"varint,2,opt,name=StartSeg,proto3" json:"StartSeg,omitempty"`
-	SegLen        int32                  `protobuf:"varint,3,opt,name=SegLen,proto3" json:"SegLen,omitempty"`
+	StartSeg      int64                  `protobuf:"varint,2,opt,name=StartSeg,proto3" json:"StartSeg,omitempty"`
+	SegLen        int64                  `protobuf:"varint,3,opt,name=SegLen,proto3" json:"SegLen,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -103,14 +103,14 @@ func (x *JobDetailsResponse) GetFilePath() string {
 	return ""
 }
 
-func (x *JobDetailsResponse) GetStartSeg() int32 {
+func (x *JobDetailsResponse) GetStartSeg() int64 {
 	if x != nil {
 		return x.StartSeg
 	}
 	return 0
 }
 
-func (x *JobDetailsResponse) GetSegLen() int32 {
+func (x *JobDetailsResponse) GetSegLen() int64 {
 	if x != nil {
 		return x.SegLen
 	}
@@ -164,9 +164,9 @@ func (x *JobDataResponse) GetData() []byte {
 type PartialResults struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FilePath      string                 `protobuf:"bytes,1,opt,name=FilePath,proto3" json:"FilePath,omitempty"`
-	StartSeg      int32                  `protobuf:"varint,2,opt,name=StartSeg,proto3" json:"StartSeg,omitempty"`
-	SegLen        int32                  `protobuf:"varint,3,opt,name=SegLen,proto3" json:"SegLen,omitempty"`
-	NumPrimes     int32                  `protobuf:"varint,4,opt,name=NumPrimes,proto3" json:"NumPrimes,omitempty"`
+	StartSeg      int64                  `protobuf:"varint,2,opt,name=StartSeg,proto3" json:"StartSeg,omitempty"`
+	SegLen        int64                  `protobuf:"varint,3,opt,name=SegLen,proto3" json:"SegLen,omitempty"`
+	NumPrimes     int64                  `protobuf:"varint,4,opt,name=NumPrimes,proto3" json:"NumPrimes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -208,21 +208,21 @@ func (x *PartialResults) GetFilePath() string {
 	return ""
 }
 
-func (x *PartialResults) GetStartSeg() int32 {
+func (x *PartialResults) GetStartSeg() int64 {
 	if x != nil {
 		return x.StartSeg
 	}
 	return 0
 }
 
-func (x *PartialResults) GetSegLen() int32 {
+func (x *PartialResults) GetSegLen() int64 {
 	if x != nil {
 		return x.SegLen
 	}
 	return 0
 }
 
-func (x *PartialResults) GetNumPrimes() int32 {
+func (x *PartialResults) GetNumPrimes() int64 {
 	if x != nil {
 		return x.NumPrimes
 	}
@@ -237,15 +237,15 @@ const file_service_proto_rawDesc = "" +
 	"\x05Empty\"d\n" +
 	"\x12JobDetailsResponse\x12\x1a\n" +
 	"\bFilePath\x18\x01 \x01(\tR\bFilePath\x12\x1a\n" +
-	"\bStartSeg\x18\x02 \x01(\x05R\bStartSeg\x12\x16\n" +
-	"\x06SegLen\x18\x03 \x01(\x05R\x06SegLen\"%\n" +
+	"\bStartSeg\x18\x02 \x01(\x03R\bStartSeg\x12\x16\n" +
+	"\x06SegLen\x18\x03 \x01(\x03R\x06SegLen\"%\n" +
 	"\x0fJobDataResponse\x12\x12\n" +
 	"\x04data\x18\x01 \x01(\fR\x04data\"~\n" +
 	"\x0ePartialResults\x12\x1a\n" +
 	"\bFilePath\x18\x01 \x01(\tR\bFilePath\x12\x1a\n" +
-	"\bStartSeg\x18\x02 \x01(\x05R\bStartSeg\x12\x16\n" +
-	"\x06SegLen\x18\x03 \x01(\x05R\x06SegLen\x12\x1c\n" +
-	"\tNumPrimes\x18\x04 \x01(\x05R\tNumPrimes2G\n" +
+	"\bStartSeg\x18\x02 \x01(\x03R\bStartSeg\x12\x16\n" +
+	"\x06SegLen\x18\x03 \x01(\x03R\x06SegLen\x12\x1c\n" +
+	"\tNumPrimes\x18\x04 \x01(\x03R\tNumPrimes2G\n" +
 	"\n" +
 	"JobService\x129\n" +
 	"\n" +
